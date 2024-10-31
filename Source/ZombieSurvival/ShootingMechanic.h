@@ -10,11 +10,14 @@ public:
 
 	void StartShooting();
 	void StopShooting();
+	bool SetAiming(bool bNewAiming);
 	void Reload();
 	bool CanShoot() const { return !bIsReloading; }
 	bool CanReload() const { return !bIsShooting; }
+	bool IsAiming() const { return bIsAiming; }
 
 private:
 	bool bIsShooting;
 	bool bIsReloading;
+	bool bIsAiming;
 };

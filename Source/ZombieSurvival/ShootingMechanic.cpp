@@ -30,3 +30,9 @@ void ShootingMechanic::Reload()
 	// Implement reloading logic here
 	bIsReloading = false;
 }
+
+bool ShootingMechanic::SetAiming(bool bNewAiming)
+{
+	bIsAiming = bNewAiming;
+	return bIsAiming;
+}

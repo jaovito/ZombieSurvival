@@ -3,6 +3,8 @@
 
 #include "PlayerCharacter.h"
 
+#include "GameFramework/CharacterMovementComponent.h"
+
 // Sets default values
 APlayerCharacter::APlayerCharacter()
 {
@@ -55,4 +57,17 @@ bool APlayerCharacter::CanReload()
 bool APlayerCharacter::CanShoot()
 {
 	return ShootingMechanicInstance.CanShoot();
+}
+
+bool APlayerCharacter::IsAiming()
+{
+	return ShootingMechanicInstance.IsAiming();
+}
+
+bool APlayerCharacter::SetAiming(bool bNewAiming)
+{
+	ShootingMechanicInstance.SetAiming(bNewAiming);
+	GetCharacterMovement()->bOrientRotationToMovement = !bNewAiming;
+
+	return bNewAiming;
 }

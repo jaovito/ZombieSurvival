@@ -37,6 +37,9 @@ public:
 	void StopShooting();
 
 	UFUNCTION(BlueprintCallable)
+	bool SetAiming(bool bNewAiming);
+
+	UFUNCTION(BlueprintCallable)
 	void Reload();
 
 	UFUNCTION(BlueprintPure)
@@ -44,4 +47,7 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	bool CanReload();
+
+	UFUNCTION(BlueprintPure)
+	bool IsAiming();
 };
