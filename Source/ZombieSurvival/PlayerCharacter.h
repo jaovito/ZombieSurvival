@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ShootingMechanic.h"
 #include "GameFramework/Character.h"
 #include "PlayerCharacter.generated.h"
 
@@ -19,6 +20,9 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+private:
+	ShootingMechanic ShootingMechanicInstance;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -26,4 +30,18 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	UFUNCTION(BlueprintCallable)
+	void StartShooting();
+
+	UFUNCTION(BlueprintCallable)
+	void StopShooting();
+
+	UFUNCTION(BlueprintCallable)
+	void Reload();
+
+	UFUNCTION(BlueprintPure)
+	bool CanShoot();
+
+	UFUNCTION(BlueprintPure)
+	bool CanReload();
 };

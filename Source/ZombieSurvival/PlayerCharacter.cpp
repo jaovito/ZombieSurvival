@@ -32,3 +32,27 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 }
 
+void APlayerCharacter::StartShooting()
+{
+	ShootingMechanicInstance.StartShooting();
+}
+
+void APlayerCharacter::StopShooting()
+{
+	ShootingMechanicInstance.StopShooting();
+}
+
+void APlayerCharacter::Reload()
+{
+	ShootingMechanicInstance.Reload();
+}
+
+bool APlayerCharacter::CanReload()
+{
+	return ShootingMechanicInstance.CanReload();
+}
+
+bool APlayerCharacter::CanShoot()
+{
+	return ShootingMechanicInstance.CanShoot();
+}
