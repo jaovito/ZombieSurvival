@@ -32,6 +32,12 @@ private:
 	bool bIsReloading = false;
 
 public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shooting Settings")
+	float minAimOffset = -55.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shooting Settings")
+	float maxAimOffset = 55.0f;
+	
 	UFUNCTION(BlueprintCallable)
 	void Shoot();
 
@@ -49,4 +55,7 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	bool IsAiming();
+
+	UFUNCTION(BlueprintPure)
+	bool IsFirstBetweenValues(float Value, float Min, float Max);
 };

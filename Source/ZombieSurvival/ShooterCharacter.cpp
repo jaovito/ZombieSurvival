@@ -6,6 +6,7 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AShooterCharacter::AShooterCharacter()
@@ -19,7 +20,10 @@ AShooterCharacter::AShooterCharacter()
 void AShooterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	APlayerCameraManager* CameraManager = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
+
+	CameraManager->ViewPitchMin = minAimOffset;
+	CameraManager->ViewPitchMax = maxAimOffset;
 }
 
 // Called every frame
@@ -86,4 +90,9 @@ bool AShooterCharacter::SetAiming(bool bNewAiming)
 	}
 
 	return bNewAiming;
+}
+
+bool AShooterCharacter::IsFirstBetweenValues(float Value, float Min, float Max)
+{
+	return Value >= Min && Value <= Max;
 }
