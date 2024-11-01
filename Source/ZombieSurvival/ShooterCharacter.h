@@ -3,25 +3,21 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ShootingMechanic.h"
 #include "GameFramework/Character.h"
-#include "PlayerCharacter.generated.h"
+#include "ShooterCharacter.generated.h"
 
 UCLASS()
-class ZOMBIESURVIVAL_API APlayerCharacter : public ACharacter
+class ZOMBIESURVIVAL_API AShooterCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
 public:
 	// Sets default values for this character's properties
-	APlayerCharacter();
+	AShooterCharacter();
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
-private:
-	ShootingMechanic ShootingMechanicInstance;
 
 public:	
 	// Called every frame
@@ -30,23 +26,26 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	UFUNCTION(BlueprintCallable)
-	void StartShooting();
+private:
+	bool bIsShooting = false;
+	bool bIsAiming = false;
+	bool bIsReloading = false;
 
+public:
 	UFUNCTION(BlueprintCallable)
-	void StopShooting();
-
-	UFUNCTION(BlueprintCallable)
-	bool SetAiming(bool bNewAiming);
+	void Shoot();
 
 	UFUNCTION(BlueprintCallable)
 	void Reload();
 
-	UFUNCTION(BlueprintPure)
-	bool CanShoot();
+	UFUNCTION(BlueprintCallable)
+	bool SetAiming(bool bNewAiming);
 
 	UFUNCTION(BlueprintPure)
-	bool CanReload();
+	bool IsShooting();
+
+	UFUNCTION(BlueprintPure)
+	bool IsReloading();
 
 	UFUNCTION(BlueprintPure)
 	bool IsAiming();
