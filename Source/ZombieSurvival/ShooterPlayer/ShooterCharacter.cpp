@@ -43,7 +43,7 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 void AShooterCharacter::Shoot()
 {
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-	if (AnimInstance && !IsShooting() && !IsReloading() && !IsAiming())
+	if (AnimInstance && !IsShooting() && !IsReloading() && IsAiming())
 	{
 		bIsShooting = true;
 		AnimInstance->Montage_Play(ShootMontage);
