@@ -30,6 +30,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Shooting Settings")
 	UNiagaraSystem* ShootImpactFX;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Shooting Settings")
+	UNiagaraSystem* ShootMuzzleFX;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

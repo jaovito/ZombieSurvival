@@ -96,6 +96,14 @@ void AShooterCharacter::Shoot()
 			{
 				UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ShootImpactFX, HitResult.ImpactPoint, FRotator::ZeroRotator);
 			}
+
+			if (GunMesh && ShootMuzzleFX)
+			{
+				FVector MuzzleSocketLocation = GunMesh->GetSocketLocation("Muzzle");
+				FRotator MuzzleSocketRotation = GunMesh->GetSocketRotation("Muzzle");
+
+				UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ShootMuzzleFX, MuzzleSocketLocation, MuzzleSocketRotation);
+			}
 		}
 		else {
 			UE_LOG(LogTemp, Log, TEXT("No Actors were hit"));
