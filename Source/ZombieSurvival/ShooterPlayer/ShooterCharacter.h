@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Interfaces/ShooterCharacterInterface.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraComponent.h"
 #include "ShooterCharacter.generated.h"
 
 UCLASS()
@@ -25,6 +27,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shooting Settings")
 	UBlueprint* BPProjectile;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Shooting Settings")
+	UNiagaraSystem* ShootImpactFX;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -38,9 +43,7 @@ private:
 	bool bIsReloading = false;
 	TArray<USkeletalMeshComponent*> SkeletalComps;
 	USkeletalMeshComponent* GunMesh;
-	FHitResult LastHitResult;
 	FHitResult CrosshairHitResult;
-
 	FHitResult GetObjectInSight();
 
 public:
@@ -52,7 +55,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shooting Settings")
 	UAnimMontage* ShootMontage;
-
+	
 	UFUNCTION(BlueprintCallable)
 	void Shoot();
 

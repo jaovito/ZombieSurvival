@@ -91,6 +91,11 @@ void AShooterCharacter::Shoot()
 			{
 				HitResult.GetComponent()->AddImpulseAtLocation(ImpulseDirection, HitResult.ImpactPoint);
 			}
+
+			if (ShootImpactFX)
+			{
+				UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ShootImpactFX, HitResult.ImpactPoint, FRotator::ZeroRotator);
+			}
 		}
 		else {
 			UE_LOG(LogTemp, Log, TEXT("No Actors were hit"));
