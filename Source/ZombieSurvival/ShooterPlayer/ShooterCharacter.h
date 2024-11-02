@@ -4,10 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Interfaces/ShooterCharacterInterface.h"
 #include "ShooterCharacter.generated.h"
 
 UCLASS()
-class ZOMBIESURVIVAL_API AShooterCharacter : public ACharacter
+class ZOMBIESURVIVAL_API AShooterCharacter : public ACharacter, public IShooterCharacterInterface
 {
 	GENERATED_BODY()
 
@@ -18,6 +19,8 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	void OnMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 
 public:	
 	// Called every frame
@@ -37,7 +40,10 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shooting Settings")
 	float maxAimOffset = 55.0f;
-	
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shooting Settings")
+	UAnimMontage* ShootMontage;
+
 	UFUNCTION(BlueprintCallable)
 	void Shoot();
 
@@ -58,4 +64,6 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	bool IsFirstBetweenValues(float Value, float Min, float Max);
+
+	void ResetShooting_Implementation() override;
 };

@@ -42,7 +42,12 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 void AShooterCharacter::Shoot()
 {
-	bIsShooting = true;
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && !IsShooting() && !IsReloading() && !IsAiming())
+	{
+		bIsShooting = true;
+		AnimInstance->Montage_Play(ShootMontage);
+	}
 }
 
 void AShooterCharacter::Reload()
@@ -95,4 +100,17 @@ bool AShooterCharacter::SetAiming(bool bNewAiming)
 bool AShooterCharacter::IsFirstBetweenValues(float Value, float Min, float Max)
 {
 	return Value >= Min && Value <= Max;
+}
+
+void AShooterCharacter::ResetShooting_Implementation()
+{
+	bIsShooting = false;
+}
+
+void AShooterCharacter::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+{
+	if (Montage == ShootMontage)
+	{
+		bIsShooting = false;
+	}
 }
