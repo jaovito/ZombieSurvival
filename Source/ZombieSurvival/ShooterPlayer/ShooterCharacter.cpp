@@ -43,7 +43,7 @@ void AShooterCharacter::Tick(float DeltaTime)
 
 	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
 	
-	if (PlayerController)
+	if (PlayerController && IsAiming())
 	{
 		FVector CameraLocation;
 		FRotator CameraRotation;
@@ -60,7 +60,7 @@ void AShooterCharacter::Tick(float DeltaTime)
 
 		if (CrosshairHitResult.bBlockingHit)
 		{
-			UE_LOG(LogTemp, Log, TEXT("Crosshair hit actor: %s"), *CrosshairHitResult.GetActor()->GetName());
+			// UE_LOG(LogTemp, Log, TEXT("Crosshair hit actor: %s"), *CrosshairHitResult.GetActor()->GetName());
 		}
 	}
 }
@@ -79,17 +79,17 @@ void AShooterCharacter::Shoot()
 		bIsShooting = true;
 		FHitResult HitResult = GetObjectInSight();
 
-		if (LastHitResult.bBlockingHit && IsValid(LastHitResult.GetActor()))
+		if (HitResult.bBlockingHit && IsValid(HitResult.GetActor()))
 		{
-			UE_LOG(LogTemp, Log, TEXT("Trace hit actor: %s"), *LastHitResult.GetActor()->GetName());
-			FVector ImpulseDirection = LastHitResult.ImpactPoint * 9999.0f;
-			ImpulseDirection.Normalize();
+			UE_LOG(LogTemp, Log, TEXT("Trace hit actor: %s"), *HitResult.GetActor()->GetName());
+			FVector ImpulseDirection = (HitResult.ImpactPoint - GetActorLocation()).GetSafeNormal();
+			ImpulseDirection *= 10000.0f; // Adjust the impulse strength as needed
 					
 			ImpulseDirection.Z += 10.0f;
 
 			if (HitResult.GetComponent()->IsSimulatingPhysics())
 			{
-				HitResult.GetComponent()->AddRadialImpulse(HitResult.ImpactPoint, 100.f, 300.0f, ERadialImpulseFalloff::RIF_Constant, true);
+				HitResult.GetComponent()->AddImpulseAtLocation(ImpulseDirection, HitResult.ImpactPoint);
 			}
 		}
 		else {
@@ -154,6 +154,7 @@ bool AShooterCharacter::IsFirstBetweenValues(float Value, float Min, float Max)
 
 void AShooterCharacter::ResetShooting_Implementation()
 {
+	UE_LOG(LogTemp, Log, TEXT("Reset shooting"));
 	bIsShooting = false;
 }
 
@@ -167,26 +168,5 @@ void AShooterCharacter::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 
 FHitResult AShooterCharacter::GetObjectInSight()
 {
-	for (int i = 0; i < SkeletalComps.Num(); i++)
-	{
-		USkeletalMeshComponent* SkeletalComp = SkeletalComps[i];
-
-		if (SkeletalComp->GetName() == "Gun")
-		{
-			GunMesh = SkeletalComp;
-			FVector SocketLocation = SkeletalComp->GetSocketLocation("Muzzle");
-			FRotator SocketRotation = SkeletalComp->GetSocketRotation("Muzzle");
-
-			// add a trace to check if the projectile will hit something
-			FVector TraceStart = SocketLocation;
-			FVector TraceEnd = CrosshairHitResult.Location;
-			FCollisionQueryParams CollisionParams;
-			CollisionParams.AddIgnoredActor(this);
-
-			GetWorld()->LineTraceSingleByChannel(LastHitResult, TraceStart, TraceEnd, ECollisionChannel::ECC_Visibility, CollisionParams);
-			DrawDebugLine(GetWorld(), TraceStart, TraceEnd, LastHitResult.bBlockingHit ? FColor::Blue : FColor::Red, false, 5.0f, 0, 10.0f);
-			UE_LOG(LogTemp, Log, TEXT("Tracing line: %s to %s"), *TraceStart.ToCompactString(), *TraceEnd.ToCompactString());
-		}
-	}
-	return LastHitResult;
+	return CrosshairHitResult;
 }
