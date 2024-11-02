@@ -3,6 +3,7 @@
 
 #include "ShooterCharacter.h"
 
+#include "Projectile.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -46,6 +47,49 @@ void AShooterCharacter::Shoot()
 	if (AnimInstance && !IsShooting() && !IsReloading() && IsAiming())
 	{
 		bIsShooting = true;
+
+		TArray<USkeletalMeshComponent*> SkeletalComps;
+		GetComponents<USkeletalMeshComponent>(SkeletalComps);
+
+		for (int i = 0; i < SkeletalComps.Num(); i++)
+		{
+			USkeletalMeshComponent* SkeletalComp = SkeletalComps[i];
+
+			if (SkeletalComp->GetName() == "Gun")
+			{
+				FVector SocketLocation = SkeletalComp->GetSocketLocation("Muzzle");
+				FRotator SocketRotation = SkeletalComp->GetSocketRotation("Muzzle");
+
+				// add a trace to check if the projectile will hit something
+				FHitResult HitResult;
+				FVector TraceStart = SocketLocation;
+				FVector TraceEnd = SocketLocation + SocketRotation.Vector() * 10000.0f;
+				FCollisionQueryParams CollisionParams;
+				CollisionParams.AddIgnoredActor(this);
+
+				GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECollisionChannel::ECC_Pawn, CollisionParams);
+				DrawDebugLine(GetWorld(), TraceStart, TraceEnd, HitResult.bBlockingHit ? FColor::Blue : FColor::Red, false, 5.0f, 0, 10.0f);
+				UE_LOG(LogTemp, Log, TEXT("Tracing line: %s to %s"), *TraceStart.ToCompactString(), *TraceEnd.ToCompactString());
+
+				if (HitResult.bBlockingHit && IsValid(HitResult.GetActor()))
+				{
+					UE_LOG(LogTemp, Log, TEXT("Trace hit actor: %s"), *HitResult.GetActor()->GetName());
+					FVector ImpulseDirection = HitResult.ImpactPoint * 9999.0f;
+					ImpulseDirection.Normalize();
+					
+					ImpulseDirection.Z += 10.0f;
+					
+					if (HitResult.GetComponent()->IsSimulatingPhysics())
+					{
+						HitResult.GetComponent()->AddRadialImpulse(HitResult.ImpactPoint, 100.f, 300.0f, ERadialImpulseFalloff::RIF_Constant, true);
+					}
+				}
+				else {
+					UE_LOG(LogTemp, Log, TEXT("No Actors were hit"));
+				}
+			}
+		}
+		
 		AnimInstance->Montage_Play(ShootMontage);
 	}
 }

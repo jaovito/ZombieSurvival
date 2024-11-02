@@ -22,6 +22,9 @@ protected:
 
 	void OnMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shooting Settings")
+	UBlueprint* BPProjectile;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -65,5 +68,5 @@ public:
 	UFUNCTION(BlueprintPure)
 	bool IsFirstBetweenValues(float Value, float Min, float Max);
 
-	void ResetShooting_Implementation() override;
+	virtual void ResetShooting_Implementation() override;
 };
