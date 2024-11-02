@@ -36,6 +36,12 @@ private:
 	bool bIsShooting = false;
 	bool bIsAiming = false;
 	bool bIsReloading = false;
+	TArray<USkeletalMeshComponent*> SkeletalComps;
+	USkeletalMeshComponent* GunMesh;
+	FHitResult LastHitResult;
+	FHitResult CrosshairHitResult;
+
+	FHitResult GetObjectInSight();
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shooting Settings")
