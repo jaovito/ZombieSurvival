@@ -55,12 +55,12 @@ void AShooterCharacter::Tick(float DeltaTime)
 		FCollisionQueryParams CollisionParams;
 		CollisionParams.AddIgnoredActor(this);
 
-		GetWorld()->LineTraceSingleByChannel(CrosshairHitResult, TraceStart, TraceEnd, ECollisionChannel::ECC_Visibility, CollisionParams);
+		GetWorld()->LineTraceSingleByChannel(CrosshairHitResult, TraceStart, TraceEnd, ECollisionChannel::ECC_Pawn, CollisionParams);
 		// DrawDebugLine(GetWorld(), TraceStart, TraceEnd, CrosshairHitResult.bBlockingHit ? FColor::Green : FColor::Red, false, 0.1f, 0, 1.0f);
 
 		if (CrosshairHitResult.bBlockingHit)
 		{
-			// UE_LOG(LogTemp, Log, TEXT("Crosshair hit actor: %s"), *CrosshairHitResult.GetActor()->GetName());
+			UE_LOG(LogTemp, Log, TEXT("Crosshair hit actor: %s"), *CrosshairHitResult.GetActor()->GetName());
 		}
 	}
 }
