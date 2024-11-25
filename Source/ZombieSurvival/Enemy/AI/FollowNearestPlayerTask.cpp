@@ -5,34 +5,75 @@
 
 #include "AIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "ZombieSurvival/CharacterStatusComponent.h"
 #include "ZombieSurvival/ShooterPlayer/ShooterCharacter.h"
 
 UFollowNearestPlayerTask::UFollowNearestPlayerTask()
 {
 	DistanceThreshold = 1000.0f;
+	DistanceToAttack = 5500.0f;
 	TargetPlayer = nullptr;
 }
 
 EBTNodeResult::Type UFollowNearestPlayerTask::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
+	ACharacter* Character = Cast<ACharacter>(OwnerComp.GetAIOwner()->GetPawn());
+	if (!Character)
+	{
+		return EBTNodeResult::Failed;
+	}
+	
 	FVector NearestPlayerLocation = GetNearestPlayerLocation(OwnerComp);
+	
 
 	if (NearestPlayerLocation != FVector::ZeroVector)
 	{
 		OwnerComp.GetBlackboardComponent()->SetValueAsVector("TargetLocation", NearestPlayerLocation);
+		bool bIsCharacterFalling = Character->GetCharacterMovement()->IsFalling();
+		float DistanceToPlayer = FVector::DistSquared(Character->GetActorLocation(), NearestPlayerLocation);
+		bool bIsCharacterInRange = DistanceToPlayer < DistanceToAttack;
 
-		AAIController* AIController = OwnerComp.GetAIOwner();
-		if (AIController)
+		UE_LOG(LogTemp, Log, TEXT("Character is in range: %d"), bIsCharacterInRange);
+		UE_LOG(LogTemp, Log, TEXT("Character distance to player: %f"), DistanceToPlayer);
+			UE_LOG(LogTemp, Log, TEXT("Character to attack: %f"), DistanceToAttack);
+	
+		if (bIsCharacterInRange)
 		{
-			AIController->MoveToLocation(NearestPlayerLocation);
-			UE_LOG(LogTemp, Log, TEXT("Moving to location %s"), *NearestPlayerLocation.ToString());
+			AttackPlayer(OwnerComp);
+		}
+		
+		if (!bIsCharacterFalling)
+		{
+			FollowPlayer(OwnerComp.GetAIOwner(), NearestPlayerLocation);
 		}
 		
 		return EBTNodeResult::Succeeded;
 	}
 
 	return EBTNodeResult::Failed;
+}
+
+void UFollowNearestPlayerTask::FollowPlayer(AAIController* AIController, FVector NearestPlayerLocation)
+{
+	if (AIController)
+	{
+		AIController->MoveToLocation(NearestPlayerLocation);
+		// UE_LOG(LogTemp, Log, TEXT("Moving to location %s"), *NearestPlayerLocation.ToString());
+	}
+}
+
+void UFollowNearestPlayerTask::AttackPlayer(UBehaviorTreeComponent& OwnerComp)
+{
+	AShooterCharacter* Player = Cast<AShooterCharacter>(TargetPlayer);
+
+	if (Player)
+	{
+		// get CharacterStatus component from player
+		UCharacterStatusComponent* CharacterStatusComponent = Player->FindComponentByClass<UCharacterStatusComponent>();
+		CharacterStatusComponent->TakeDamage(10.0f);
+	}
 }
 
 FVector UFollowNearestPlayerTask::GetNearestPlayerLocation(UBehaviorTreeComponent& OwnerComp)
@@ -47,7 +88,7 @@ FVector UFollowNearestPlayerTask::GetNearestPlayerLocation(UBehaviorTreeComponen
 		for (AActor* PlayerActor : PlayerActors)
 		{
 			AShooterCharacter* Player = Cast<AShooterCharacter>(PlayerActor);
-			UE_LOG(LogTemp, Log, TEXT("Moving to location %s"), *NearestPlayerLocation.ToString());
+			// UE_LOG(LogTemp, Log, TEXT("Moving to location %s"), *NearestPlayerLocation.ToString());
 
 			if (Player)
 			{
@@ -59,7 +100,7 @@ FVector UFollowNearestPlayerTask::GetNearestPlayerLocation(UBehaviorTreeComponen
 	} else {
 		float DistanceToPlayer = FVector::DistSquared(OwnerComp.GetAIOwner()->GetPawn()->GetActorLocation(), NearestPlayerLocation);
 
-		if (DistanceToPlayer > 10000)
+		if (DistanceToPlayer > DistanceThreshold)
 		{
 			TargetPlayer = nullptr;
 			NearestPlayerLocation = GetNearestPlayerLocation(OwnerComp);

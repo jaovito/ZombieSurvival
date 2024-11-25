@@ -22,9 +22,14 @@ protected:
 
 private:
 	FVector GetNearestPlayerLocation(UBehaviorTreeComponent& OwnerComp);
+	void FollowPlayer(AAIController* AIController, FVector NearestPlayerLocation);
+	void AttackPlayer(UBehaviorTreeComponent& OwnerComp);
 
 	AActor* TargetPlayer;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
 	float DistanceThreshold;
+
+	UPROPERTY(EditDefaultsOnly, Category = "AI")
+	float DistanceToAttack = 5500.0f;
 };
