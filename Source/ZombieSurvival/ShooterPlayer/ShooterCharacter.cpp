@@ -7,6 +7,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "ZombieSurvival/Enemy/Interfaces/EnemyInterface.h"
 
 // Sets default values
 AShooterCharacter::AShooterCharacter()
@@ -86,6 +87,7 @@ void AShooterCharacter::Shoot()
 			ImpulseDirection *= 10000.0f; // Adjust the impulse strength as needed
 					
 			ImpulseDirection.Z += 10.0f;
+			bool bIsEnemy = HitResult.GetActor()->GetClass()->ImplementsInterface(UEnemyInterface::StaticClass());
 
 			if (HitResult.GetComponent()->IsSimulatingPhysics())
 			{
@@ -103,6 +105,11 @@ void AShooterCharacter::Shoot()
 				FRotator MuzzleSocketRotation = GunMesh->GetSocketRotation("Muzzle");
 
 				UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ShootMuzzleFX, MuzzleSocketLocation, MuzzleSocketRotation);
+			}
+
+			if (bIsEnemy)
+			{
+				IEnemyInterface::Execute_TakeDamage(HitResult.GetActor(), 10.0f);
 			}
 		}
 		else {
