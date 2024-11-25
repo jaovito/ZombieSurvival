@@ -18,29 +18,41 @@ AEnemySpawn::AEnemySpawn()
 void AEnemySpawn::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	GetWorldTimerManager().SetTimer(MemberTimerHandle, this, &AEnemySpawn::SpawnEnemies, SpawnDelay, true, 2.0f);
 }
 
 // Called every frame
 void AEnemySpawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+}
 
-	TArray<AActor*> Enemies;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AEnemy::StaticClass(), Enemies);
-
-	if (Enemies.Num() == 0 && bShouldSpawn)
+void AEnemySpawn::SpawnEnemies()
+{
+	if (bShouldSpawn)
 	{
-		for (int i = 0; i < EnemiesToSpawn; i++)
-		{
-			// get random location
-			FVector SpawnLocation = GetActorLocation(); 
-			FRotator SpawnRotation = GetActorRotation();
-			FActorSpawnParameters SpawnParams;
-			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+		// get random location
+		FVector SpawnLocation = GetActorLocation(); 
+		FRotator SpawnRotation = GetActorRotation();
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
-			AEnemy* Enemy = GetWorld()->SpawnActor<AEnemy>(AEnemy::StaticClass(), SpawnLocation, SpawnRotation, SpawnParams);
+			
+		AEnemy* Enemy = GetWorld()->SpawnActor<AEnemy>(EnemyBlueprint, SpawnLocation, SpawnRotation, SpawnParams);
+		EnemiesSpawned++;
+
+		if (EnemiesSpawned >= EnemiesToSpawn)
+		{
+			bShouldSpawn = false;
+			GetWorldTimerManager().ClearTimer(MemberTimerHandle);
 		}
 	}
 }
 
+void AEnemySpawn::StartNextWave()
+{
+	Wave++;
+	EnemiesSpawned = 0;
+	bShouldSpawn = true;
+	GetWorldTimerManager().SetTimer(MemberTimerHandle, this, &AEnemySpawn::SpawnEnemies, SpawnDelay, true, 2.0f);
+}

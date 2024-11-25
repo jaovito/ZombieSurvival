@@ -37,7 +37,7 @@ EBTNodeResult::Type UFollowNearestPlayerTask::ExecuteTask(UBehaviorTreeComponent
 
 		UE_LOG(LogTemp, Log, TEXT("Character is in range: %d"), bIsCharacterInRange);
 		UE_LOG(LogTemp, Log, TEXT("Character distance to player: %f"), DistanceToPlayer);
-			UE_LOG(LogTemp, Log, TEXT("Character to attack: %f"), DistanceToAttack);
+		UE_LOG(LogTemp, Log, TEXT("Character to attack: %f"), DistanceToAttack);
 	
 		if (bIsCharacterInRange)
 		{
@@ -83,32 +83,18 @@ FVector UFollowNearestPlayerTask::GetNearestPlayerLocation(UBehaviorTreeComponen
 
 	FVector NearestPlayerLocation = FVector::ZeroVector;
 
-	if (!TargetPlayer)
+	// get nearest shooter player
+	float MinDistance = TNumericLimits<float>::Max();
+	for (AActor* Player : PlayerActors)
 	{
-		for (AActor* PlayerActor : PlayerActors)
+		float Distance = FVector::DistSquared(OwnerComp.GetAIOwner()->GetPawn()->GetActorLocation(), Player->GetActorLocation());
+		if (Distance < MinDistance)
 		{
-			AShooterCharacter* Player = Cast<AShooterCharacter>(PlayerActor);
-			// UE_LOG(LogTemp, Log, TEXT("Moving to location %s"), *NearestPlayerLocation.ToString());
-
-			if (Player)
-			{
-				TargetPlayer = Player;
-				NearestPlayerLocation = Player->GetActorLocation();
-				break;
-			}
-		}
-	} else {
-		float DistanceToPlayer = FVector::DistSquared(OwnerComp.GetAIOwner()->GetPawn()->GetActorLocation(), NearestPlayerLocation);
-
-		if (DistanceToPlayer > DistanceThreshold)
-		{
-			TargetPlayer = nullptr;
-			NearestPlayerLocation = GetNearestPlayerLocation(OwnerComp);
-		} else
-		{
-			NearestPlayerLocation = TargetPlayer->GetActorLocation();
+			MinDistance = Distance;
+			NearestPlayerLocation = Player->GetActorLocation();
+			TargetPlayer = Player;
 		}
 	}
-
+	
 	return NearestPlayerLocation;
 }
