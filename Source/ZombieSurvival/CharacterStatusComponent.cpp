@@ -38,9 +38,9 @@ void UCharacterStatusComponent::TakeDamage(float Damage)
 void UCharacterStatusComponent::Heal(float Amount)
 {
 	Health += Amount;
-	if (Health > 100.0f)
+	if (Health > MaxHealth)
 	{
-		Health = 100.0f;
+		Health = MaxHealth;
 	}
 }
 

@@ -4,7 +4,7 @@
 #include "EnemySpawn.h"
 
 #include "Enemy.h"
-#include "Kismet/GameplayStatics.h"
+#include "ZombieSurvival/CharacterStatusComponent.h"
 
 
 // Sets default values
@@ -39,6 +39,14 @@ void AEnemySpawn::SpawnEnemies()
 
 			
 		AEnemy* Enemy = GetWorld()->SpawnActor<AEnemy>(EnemyBlueprint, SpawnLocation, SpawnRotation, SpawnParams);
+		UCharacterStatusComponent* StatusComponent = Enemy->GetComponentByClass<UCharacterStatusComponent>();
+
+		if (StatusComponent)
+		{
+			StatusComponent->MaxHealth += Wave * HealthMultiplier;
+			StatusComponent->Heal(StatusComponent->MaxHealth);
+		}
+		
 		EnemiesSpawned++;
 
 		if (EnemiesSpawned >= EnemiesToSpawn)

@@ -24,7 +24,7 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-	float Health = 100.0f;
+	float Health = MaxHealth;
 	float Stamina = 100.0f;
 
 public:
@@ -40,10 +40,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void DrainStamina(float Amount);
 
-
 	UFUNCTION(BlueprintPure)
 	float GetHealth();
 
 	UFUNCTION(BlueprintPure)
 	float GetStamina();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character Status")
+	float MaxHealth = 100.0f;
 };
