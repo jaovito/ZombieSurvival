@@ -109,7 +109,7 @@ void AShooterCharacter::Shoot()
 
 			if (bIsEnemy)
 			{
-				IEnemyInterface::Execute_TakeDamage(HitResult.GetActor(), 10.0f);
+				IEnemyInterface::Execute_TakeDamage(HitResult.GetActor(), Damage);
 			}
 		}
 		else {

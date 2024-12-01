@@ -25,6 +25,9 @@ protected:
 	void OnMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shooting Settings")
+	float Damage = 10.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shooting Settings")
 	UBlueprint* BPProjectile;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Shooting Settings")

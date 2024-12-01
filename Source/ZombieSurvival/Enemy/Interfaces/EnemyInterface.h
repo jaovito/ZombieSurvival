@@ -30,4 +30,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Enemy Interface")
 	void Attack(AShooterCharacter* Target);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Enemy Interface")
+	void HitDetect();
 };

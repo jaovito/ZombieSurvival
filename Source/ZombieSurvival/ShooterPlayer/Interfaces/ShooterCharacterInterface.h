@@ -15,4 +15,7 @@ class IShooterCharacterInterface
 public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Shooter Character Interface")
 	void ResetShooting();
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Shooter Character Interface")
+	void TakeDamage(float HitDamage);
 };
