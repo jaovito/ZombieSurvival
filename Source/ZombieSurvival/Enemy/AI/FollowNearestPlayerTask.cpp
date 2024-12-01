@@ -7,13 +7,13 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
-#include "ZombieSurvival/CharacterStatusComponent.h"
+#include "ZombieSurvival/Enemy/Interfaces/EnemyInterface.h"
 #include "ZombieSurvival/ShooterPlayer/ShooterCharacter.h"
 
 UFollowNearestPlayerTask::UFollowNearestPlayerTask()
 {
 	DistanceThreshold = 1000.0f;
-	DistanceToAttack = 5500.0f;
+	DistanceToAttack = 30000.0f;
 	TargetPlayer = nullptr;
 }
 
@@ -33,17 +33,17 @@ EBTNodeResult::Type UFollowNearestPlayerTask::ExecuteTask(UBehaviorTreeComponent
 		OwnerComp.GetBlackboardComponent()->SetValueAsVector("TargetLocation", NearestPlayerLocation);
 		bool bIsCharacterFalling = Character->GetCharacterMovement()->IsFalling();
 		float DistanceToPlayer = FVector::DistSquared(Character->GetActorLocation(), NearestPlayerLocation);
-		bool bIsCharacterInRange = DistanceToPlayer < DistanceToAttack;
+		bool bIsCharacterInRange = DistanceToPlayer <= DistanceToAttack;
 
-		UE_LOG(LogTemp, Log, TEXT("Character is in range: %d"), bIsCharacterInRange);
-		UE_LOG(LogTemp, Log, TEXT("Character distance to player: %f"), DistanceToPlayer);
-		UE_LOG(LogTemp, Log, TEXT("Character to attack: %f"), DistanceToAttack);
+		// UE_LOG(LogTemp, Log, TEXT("Character is in range: %d"), bIsCharacterInRange);
+		// UE_LOG(LogTemp, Log, TEXT("Character distance to player: %f"), DistanceToPlayer);
+		// UE_LOG(LogTemp, Log, TEXT("Character to attack: %f"), DistanceToAttack);
 	
 		if (bIsCharacterInRange)
 		{
 			AttackPlayer(OwnerComp);
 		}
-		
+
 		if (!bIsCharacterFalling)
 		{
 			FollowPlayer(OwnerComp.GetAIOwner(), NearestPlayerLocation);
@@ -67,12 +67,17 @@ void UFollowNearestPlayerTask::FollowPlayer(AAIController* AIController, FVector
 void UFollowNearestPlayerTask::AttackPlayer(UBehaviorTreeComponent& OwnerComp)
 {
 	AShooterCharacter* Player = Cast<AShooterCharacter>(TargetPlayer);
+	ACharacter* EnemyCharacter = Cast<ACharacter>(OwnerComp.GetAIOwner()->GetPawn());
 
-	if (Player)
+	if (Player && EnemyCharacter)
 	{
-		// get CharacterStatus component from player
-		UCharacterStatusComponent* CharacterStatusComponent = Player->FindComponentByClass<UCharacterStatusComponent>();
-		CharacterStatusComponent->TakeDamage(10.0f);
+		bool bHasAttackImplementation = EnemyCharacter->GetClass()->ImplementsInterface(UEnemyInterface::StaticClass());
+
+		if (bHasAttackImplementation)
+		{
+			// get CharacterStatus component from player
+			IEnemyInterface::Execute_Attack(EnemyCharacter, Player);
+		}
 	}
 }
 

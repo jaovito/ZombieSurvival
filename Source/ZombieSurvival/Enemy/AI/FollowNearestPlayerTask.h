@@ -31,5 +31,5 @@ private:
 	float DistanceThreshold;
 
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
-	float DistanceToAttack = 5500.0f;
+	float DistanceToAttack = 30000.0f;
 };

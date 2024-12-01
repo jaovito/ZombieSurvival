@@ -27,4 +27,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Enemy Interface")
 	void TakeDamage(float HitDamage);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Enemy Interface")
+	void Attack(AShooterCharacter* Target);
 };
