@@ -61,6 +61,7 @@ void AEnemySpawn::StartNextWave()
 {
 	Wave++;
 	EnemiesSpawned = 0;
+	EnemiesToSpawn += Wave;
 	bShouldSpawn = true;
 	GetWorldTimerManager().SetTimer(MemberTimerHandle, this, &AEnemySpawn::SpawnEnemies, SpawnDelay, true, 2.0f);
 }
