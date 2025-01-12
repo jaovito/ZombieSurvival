@@ -5,8 +5,6 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Interfaces/ShooterCharacterInterface.h"
-#include "NiagaraFunctionLibrary.h"
-#include "NiagaraComponent.h"
 #include "ShooterCharacter.generated.h"
 
 UCLASS()
@@ -22,35 +20,12 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	void OnMontageEnded(UAnimMontage* Montage, bool bInterrupted);
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shooting Settings")
-	float Damage = 10.0f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shooting Settings")
-	UBlueprint* BPProjectile;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Shooting Settings")
-	UNiagaraSystem* ShootImpactFX;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Shooting Settings")
-	UNiagaraSystem* ShootMuzzleFX;
-
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-private:
-	bool bIsShooting = false;
-	bool bIsAiming = false;
-	bool bIsReloading = false;
-	TArray<USkeletalMeshComponent*> SkeletalComps;
-	USkeletalMeshComponent* GunMesh;
-	FHitResult CrosshairHitResult;
-	FHitResult GetObjectInSight();
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shooting Settings")
@@ -59,29 +34,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shooting Settings")
 	float maxAimOffset = 55.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shooting Settings")
-	UAnimMontage* ShootMontage;
-	
-	UFUNCTION(BlueprintCallable)
-	void Shoot();
-
-	UFUNCTION(BlueprintCallable)
-	void Reload();
-
-	UFUNCTION(BlueprintCallable)
-	bool SetAiming(bool bNewAiming);
-
-	UFUNCTION(BlueprintPure)
-	bool IsShooting();
-
-	UFUNCTION(BlueprintPure)
-	bool IsReloading();
-
-	UFUNCTION(BlueprintPure)
-	bool IsAiming();
-
 	UFUNCTION(BlueprintPure)
 	bool IsFirstBetweenValues(float Value, float Min, float Max);
-
-	virtual void ResetShooting_Implementation() override;
 };

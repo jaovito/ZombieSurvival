@@ -4,6 +4,10 @@
 
 This project is a study project aimed at creating a survival game where the player must survive against waves of spawning zombies. The game is developed using Unreal Engine and involves various gameplay mechanics such as shooting, aiming, and reloading.
 
+## Bugs to fix
+- [ ] The enemies stay blocked in the jump points if have more than 1 enemy at same place;
+- [ ] FPS drops when have a lot of enemies on the screen;
+
 ## Features
 
 - **Player Mechanics**: The player can shoot, aim, and reload their weapon.
