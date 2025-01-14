@@ -13,8 +13,8 @@ This project is a study project aimed at creating a survival game where the play
 - **Player Mechanics**: The player can shoot, aim, and reload their weapon.
   - [x] Aim
   - [x] Shoot
-  - [ ] Ammo
-  - [ ] Reload
+  - [x] Ammo
+  - [x] Reload
   - [ ] Health
   - [ ] Score
 - **Zombie Spawning**: Zombies spawn at regular intervals, increasing the challenge as the game progresses.

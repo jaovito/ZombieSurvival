@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "ZombieSurvival/Weapons/Gun.h"
 
 #include "ShooterCharacterInterface.generated.h"
 
@@ -15,4 +16,10 @@ class IShooterCharacterInterface
 public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Shooter Character Interface")
 	void TakeDamage(float HitDamage);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Shooter Character Interface")
+	AGun* GetCurrentGun();
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Shooter Character Interface")
+	void AddItemToInventory(AActor* Item);
 };

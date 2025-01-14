@@ -10,9 +10,11 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "EnhancedInputComponent.h"
+#include "Components/TextBlock.h"
 #include "ZombieSurvival/ShooterPlayer/Interfaces/PlayerAnimationInterface.h"
 #include "Kismet/GameplayStatics.h"
 #include "ZombieSurvival/Enemy/Interfaces/EnemyInterface.h"
+#include "ZombieSurvival/ShooterPlayer/Interfaces/ShooterCharacterInterface.h"
 
 // Sets default values
 AGun::AGun()
@@ -77,15 +79,45 @@ void AGun::Pickup(ACharacter* Player)
 		{
 			GunMesh->AttachToComponent(PlayerMesh, FAttachmentTransformRules::SnapToTargetIncludingScale, "Pistol");
 
+			if (Player->GetClass()->ImplementsInterface(UShooterCharacterInterface::StaticClass()))
+			{
+				IShooterCharacterInterface::Execute_AddItemToInventory(Player, this);
+			}
+			
 			// get the player input component
 			if (GetWorld())
 			{
 				UEnhancedInputComponent* PlayerInputComponent = PlayerOwner->FindComponentByClass<UEnhancedInputComponent>();
 
-				if (PlayerInputComponent && ShootAction)
+				if (AmmoWidgetClass)
 				{
-					PlayerInputComponent->BindAction(ShootAction, ETriggerEvent::Triggered, this, &AGun::Shoot);
-					PlayerInputComponent->BindAction(AimAction, ETriggerEvent::Triggered, this, &AGun::Aim);
+					AmmoWidget = CreateWidget<UUserWidget>(GetWorld(), AmmoWidgetClass);
+					if (AmmoWidget)
+					{
+						AmmoWidget->AddToViewport();
+						// change text to display the current ammo
+						AmmoTextBlock = Cast<UTextBlock>(AmmoWidget->GetWidgetFromName("Ammo"));
+						if (AmmoTextBlock)
+						{
+							AmmoTextBlock->SetText(FText::Format(FText::FromString("{0}/{1}"), CurrentAmmo, MaxAmmo));
+						}
+					}
+				}
+
+				if (PlayerInputComponent)
+				{
+					if (ShootAction)
+					{
+						PlayerInputComponent->BindAction(ShootAction, ETriggerEvent::Triggered, this, &AGun::Shoot);
+					}
+					if (ReloadAction)
+					{
+						PlayerInputComponent->BindAction(ReloadAction, ETriggerEvent::Triggered, this, &AGun::Reload);
+					}
+					if (AimAction)
+					{
+						PlayerInputComponent->BindAction(AimAction, ETriggerEvent::Triggered, this, &AGun::Aim);
+					}
 				}
 			}
 		}
@@ -94,14 +126,14 @@ void AGun::Pickup(ACharacter* Player)
 
 void AGun::Shoot()
 {
-	if (GetWorld()->GetTimerManager().IsTimerActive(FireRateTimerHandle))
+	if (GetWorld()->GetTimerManager().IsTimerActive(FireRateTimerHandle) || !PlayerOwner)
 	{
 		return;
 	}
-	
-	if (!PlayerOwner)
+
+	if (CurrentAmmo <= 0)
 	{
-		return;
+		return Reload();
 	}
 
 	UAnimInstance* AnimInstance = PlayerOwner->GetMesh()->GetAnimInstance();
@@ -149,13 +181,35 @@ void AGun::Shoot()
 		}
 
 		AnimInstance->Montage_Play(ShootMontage);
+		CurrentAmmo--;
+		if (AmmoTextBlock)
+		{
+			AmmoTextBlock->SetText(FText::Format(FText::FromString("{0}/{1}"), CurrentAmmo, MaxAmmo));
+
+			if (CurrentAmmo <= 0)
+			{
+				AmmoTextBlock->SetColorAndOpacity(FLinearColor::Red);
+			}
+		}
+		
 		GetWorld()->GetTimerManager().SetTimer(FireRateTimerHandle, this, &AGun::ResetShooting, FireRate, false);
 	}
 }
 
 void AGun::Reload()
 {
+	if (IsReloading() || CurrentAmmo == MaxAmmo)
+	{
+		return;
+	}
+	
+	bIsReloading = true;
+	UAnimInstance* AnimInstance = PlayerOwner->GetMesh()->GetAnimInstance();
 
+	if (AnimInstance && !IsShooting() && ReloadMontage)
+	{
+		AnimInstance->Montage_Play(ReloadMontage);
+	}
 }
 
 void AGun::Aim(const FInputActionInstance& Instance)
@@ -267,5 +321,17 @@ void AGun::ResetCamera()
 	} else
 	{
 		GetWorld()->GetTimerManager().ClearTimer(ResetCameraTimerHandle);
+	}
+}
+
+void AGun::OnReloadAnimationFinished()
+{
+	bIsReloading = false;
+	CurrentAmmo = MaxAmmo;
+	
+	if (AmmoTextBlock)
+	{
+		AmmoTextBlock->SetText(FText::Format(FText::FromString("{0}/{1}"), CurrentAmmo, MaxAmmo));
+		AmmoTextBlock->SetColorAndOpacity(FLinearColor::White);
 	}
 }

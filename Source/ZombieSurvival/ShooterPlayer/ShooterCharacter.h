@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "InventoryComponent.h"
 #include "GameFramework/Character.h"
 #include "Interfaces/ShooterCharacterInterface.h"
 #include "ShooterCharacter.generated.h"
@@ -11,7 +12,7 @@ UCLASS()
 class ZOMBIESURVIVAL_API AShooterCharacter : public ACharacter, public IShooterCharacterInterface
 {
 	GENERATED_BODY()
-
+  
 public:
 	// Sets default values for this character's properties
 	AShooterCharacter();
@@ -27,6 +28,10 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	virtual void AddItemToInventory_Implementation(AActor* Item) override;
+
+	virtual AGun* GetCurrentGun_Implementation() override;
+
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shooting Settings")
 	float minAimOffset = -55.0f;
@@ -36,4 +41,7 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	bool IsFirstBetweenValues(float Value, float Min, float Max);
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Inventory")
+	UInventoryComponent* InventoryComponent;
 };

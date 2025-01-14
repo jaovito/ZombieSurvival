@@ -8,6 +8,7 @@
 #include "Components/SphereComponent.h"
 #include "InputAction.h"
 #include "Blueprint/UserWidget.h"
+#include "Components/TextBlock.h"
 #include "GameFramework/Actor.h"
 #include "Gun.generated.h"
 
@@ -26,7 +27,16 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shooting Settings")
 	float Damage = 10.0f;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shooting Settings")
+	float FireRate = 0.1f;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Shooting Settings")
+	int MaxAmmo = 30;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Shooting Settings")
+	int CurrentAmmo = 30;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shooting Settings")
 	UBlueprint* BPProjectile;
 
@@ -48,8 +58,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Shooting Settings")
 	UInputAction* AimAction;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shooting Settings")
-	float FireRate = 0.1f;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Shooting Settings")
+	UInputAction* ReloadAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 	TSubclassOf<UUserWidget> CrosshairWidgetClass;
@@ -57,42 +67,47 @@ protected:
 	UPROPERTY()
 	UUserWidget* CrosshairWidget;
 	
-	UFUNCTION(BlueprintCallable)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+	TSubclassOf<UUserWidget> AmmoWidgetClass;
+
+	UPROPERTY()
+	UUserWidget* AmmoWidget;
+	
+	UFUNCTION(BlueprintCallable, Category = "Gun")
 	void Pickup(ACharacter* Player);
 
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shooting Settings")
-	float minAimOffset = -55.0f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shooting Settings")
-	float maxAimOffset = 55.0f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shooting Settings")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations")
 	UAnimMontage* ShootMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations")
+	UAnimMontage* ReloadMontage;
 	
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Gun")
 	void Shoot();
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Gun")
 	void Reload();
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Gun")
 	bool SetAiming(bool bNewAiming);
 
-	UFUNCTION(BlueprintPure)
+	UFUNCTION(BlueprintPure, Category = "Gun")
 	bool IsShooting();
 
-	UFUNCTION(BlueprintPure)
+	UFUNCTION(BlueprintPure, Category = "Gun")
 	bool IsReloading();
 
-	UFUNCTION(BlueprintPure)
+	UFUNCTION(BlueprintPure, Category = "Gun")
 	bool IsAiming();
 
-	UFUNCTION(BlueprintPure)
+	UFUNCTION(BlueprintPure, Category = "Gun")
 	bool IsFirstBetweenValues(float Value, float Min, float Max);
+
+	void OnReloadAnimationFinished();
 
 private:
 	bool bIsShooting = false;
@@ -100,6 +115,7 @@ private:
 	bool bIsReloading = false;
 	FTimerHandle FireRateTimerHandle;
 	FTimerHandle ResetCameraTimerHandle;
+	UTextBlock* AmmoTextBlock;
 
 	void Aim(const FInputActionInstance& Instance);
 	
