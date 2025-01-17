@@ -11,10 +11,10 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "EnhancedInputComponent.h"
 #include "Components/TextBlock.h"
-#include "ZombieSurvival/ShooterPlayer/Interfaces/PlayerAnimationInterface.h"
+#include "ZombieSurvival/Characters/Player/Interfaces/PlayerAnimationInterface.h"
 #include "Kismet/GameplayStatics.h"
-#include "ZombieSurvival/Enemy/Interfaces/EnemyInterface.h"
-#include "ZombieSurvival/ShooterPlayer/Interfaces/ShooterCharacterInterface.h"
+#include "ZombieSurvival/Characters/Enemies/Interfaces/EnemyInterface.h"
+#include "ZombieSurvival/Characters/Player/Interfaces/ShooterCharacterInterface.h"
 
 // Sets default values
 AGun::AGun()

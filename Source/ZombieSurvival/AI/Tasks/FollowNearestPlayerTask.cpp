@@ -3,8 +3,8 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
-#include "ZombieSurvival/Enemy/Interfaces/EnemyInterface.h"
-#include "ZombieSurvival/ShooterPlayer/ShooterCharacter.h"
+#include "ZombieSurvival/Characters/Enemies/Interfaces/EnemyInterface.h"
+#include "ZombieSurvival/Characters/Player/ShooterCharacter.h"
 
 UFollowNearestPlayerTask::UFollowNearestPlayerTask()
 {

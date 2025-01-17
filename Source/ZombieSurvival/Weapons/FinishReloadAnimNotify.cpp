@@ -4,7 +4,7 @@
 #include "FinishReloadAnimNotify.h"
 #include "Gun.h"
 #include "GameFramework/Actor.h"
-#include "ZombieSurvival/ShooterPlayer/Interfaces/ShooterCharacterInterface.h"
+#include "ZombieSurvival/Characters/Player/Interfaces/ShooterCharacterInterface.h"
 
 void UFinishReloadAnimNotify::Notify(
 	USkeletalMeshComponent* MeshComp,
