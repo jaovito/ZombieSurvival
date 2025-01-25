@@ -9,6 +9,7 @@
 #include "InputAction.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/TextBlock.h"
+#include "Components/TimelineComponent.h"
 #include "GameFramework/Actor.h"
 #include "Gun.generated.h"
 
@@ -76,6 +77,20 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Gun")
 	void Pickup(ACharacter* Player);
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UTimelineComponent* CameraZoomTimeline;
+	
+	UPROPERTY(EditAnywhere, Category = "Camera")
+	UCurveFloat* ZoomCurve;
+
+	FOnTimelineFloat InterpFunction;
+	FOnTimelineEvent TimelineFinished;
+
+	UFUNCTION()
+	void CameraZoomUpdate(float Value);
+	UFUNCTION()
+	void CameraZoomFinished();
+
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -108,11 +123,14 @@ public:
 	bool IsFirstBetweenValues(float Value, float Min, float Max);
 
 	void OnReloadAnimationFinished();
+	void StartCameraZoom();
+	void StopCameraZoom();
 
 private:
 	bool bIsShooting = false;
 	bool bIsAiming = false;
 	bool bIsReloading = false;
+	
 	FTimerHandle FireRateTimerHandle;
 	FTimerHandle ResetCameraTimerHandle;
 	UTextBlock* AmmoTextBlock;
@@ -124,5 +142,4 @@ private:
 	FHitResult GetObjectInSight();
 
 	void ResetShooting();
-	void ResetCamera();
 };

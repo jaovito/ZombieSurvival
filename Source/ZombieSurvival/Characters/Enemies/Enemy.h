@@ -4,10 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Interfaces/EnemyInterface.h"
+#include "ZombieSurvival/CharacterStatusComponent.h"
 #include "Enemy.generated.h"
 
 UCLASS()
-class ZOMBIESURVIVAL_API AEnemy : public ACharacter
+class ZOMBIESURVIVAL_API AEnemy : public ACharacter, public IEnemyInterface
 {
 	GENERATED_BODY()
 
@@ -15,6 +17,9 @@ public:
 	// Sets default values for this character's properties
 	AEnemy();
 
+private:
+	virtual void TakeDamage_Implementation(float HitDamage) override;
+	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -31,4 +36,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Settings")
 	bool bAlreadyAttacked = false;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Inventory")
+	UCharacterStatusComponent* CharacterStatusComponent;
 };

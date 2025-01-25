@@ -11,6 +11,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "EnhancedInputComponent.h"
 #include "Components/TextBlock.h"
+#include "Components/TimelineComponent.h"
 #include "ZombieSurvival/Characters/Player/Interfaces/PlayerAnimationInterface.h"
 #include "Kismet/GameplayStatics.h"
 #include "ZombieSurvival/Characters/Enemies/Interfaces/EnemyInterface.h"
@@ -20,7 +21,7 @@
 AGun::AGun()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	// add skeletal mesh
 	PickupArea = CreateDefaultSubobject<USphereComponent>(TEXT("PickupArea"));
@@ -31,41 +32,29 @@ AGun::AGun()
 	GunMesh->SetVisibility(true);
 	GunMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GunMesh->SetupAttachment(PickupArea);
+
+	CameraZoomTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("CameraZoomTimeline"));
 }
 
 // Called when the game starts or when spawned
 void AGun ::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (ZoomCurve)
+	{
+		InterpFunction.BindUFunction(this, FName("CameraZoomUpdate"));
+		TimelineFinished.BindUFunction(this, FName("CameraZoomFinished"));
+
+		CameraZoomTimeline->AddInterpFloat(ZoomCurve, InterpFunction, FName("Alpha"));
+		CameraZoomTimeline->SetTimelineFinishedFunc(TimelineFinished);
+	}
 }
 
 // Called every frame
 void AGun::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
-	
-	if (PlayerController && IsAiming())
-	{
-		FVector CameraLocation;
-		FRotator CameraRotation;
-		PlayerController->GetPlayerViewPoint(CameraLocation, CameraRotation);
-
-		// Perform a line trace from the camera straight ahead
-		FVector TraceStart = CameraLocation;
-		FVector TraceEnd = TraceStart + (CameraRotation.Vector() * 10000.0f);
-		FCollisionQueryParams CollisionParams;
-		CollisionParams.AddIgnoredActor(this);
-
-		GetWorld()->LineTraceSingleByChannel(CrosshairHitResult, TraceStart, TraceEnd, ECollisionChannel::ECC_Pawn, CollisionParams);
-		// DrawDebugLine(GetWorld(), TraceStart, TraceEnd, CrosshairHitResult.bBlockingHit ? FColor::Green : FColor::Red, false, 0.1f, 0, 1.0f);
-
-		// if (CrosshairHitResult.bBlockingHit)
-		// {
-		// 	UE_LOG(LogTemp, Log, TEXT("Crosshair hit actor: %s"), *CrosshairHitResult.GetActor()->GetName());
-		// }
-	}
 }
 
 void AGun::Pickup(ACharacter* Player)
@@ -146,7 +135,7 @@ void AGun::Shoot()
 
 		if (HitResult.bBlockingHit && IsValid(HitResult.GetActor()))
 		{
-			UE_LOG(LogTemp, Log, TEXT("Trace hit actor: %s"), *HitResult.GetActor()->GetName());
+			// UE_LOG(LogTemp, Log, TEXT("Trace hit actor: %s"), *HitResult.GetActor()->GetName());
 			FVector ImpulseDirection = (HitResult.ImpactPoint - GetActorLocation()).GetSafeNormal();
 			ImpulseDirection *= 10000.0f; // Adjust the impulse strength as needed
 					
@@ -160,7 +149,7 @@ void AGun::Shoot()
 
 			if (ShootImpactFX)
 			{
-				UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ShootImpactFX, HitResult.ImpactPoint, FRotator::ZeroRotator);
+				UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ShootImpactFX, HitResult.ImpactPoint, FRotator::ZeroRotator, FVector(0.1f));
 			}
 
 			if (GunMesh && ShootMuzzleFX)
@@ -215,16 +204,15 @@ void AGun::Reload()
 void AGun::Aim(const FInputActionInstance& Instance)
 {
 	bool bNewAiming = Instance.GetValue().Get<bool>();
-	SetAiming(bNewAiming);
+
+	if (bNewAiming != IsAiming())
+	{
+		SetAiming(bNewAiming);
+	}
 };
 
 bool AGun::SetAiming(bool bNewAiming)
 {
-	if (GetWorld()->GetTimerManager().IsTimerActive(ResetCameraTimerHandle))
-	{
-		GetWorld()->GetTimerManager().ClearTimer(ResetCameraTimerHandle);
-	}
-	
 	if (!PlayerOwner)
 	{
 		return false;
@@ -232,18 +220,10 @@ bool AGun::SetAiming(bool bNewAiming)
 	
 	bIsAiming = bNewAiming;
 	PlayerOwner->GetCharacterMovement()->bOrientRotationToMovement = !bNewAiming;
-	USpringArmComponent* CameraBoom = PlayerOwner->FindComponentByClass<USpringArmComponent>();
-	UCameraComponent* Camera = PlayerOwner->FindComponentByClass<UCameraComponent>();
 
-	if (CameraBoom)
-	{
 		if (bNewAiming)
 		{
-			SetActorRotation(Camera->GetComponentRotation());
-			
-			constexpr float AimingBoomArmLength = 300.0f;
-			CameraBoom->TargetArmLength = FMath::FInterpTo(CameraBoom->TargetArmLength, AimingBoomArmLength, GetWorld()->GetDeltaSeconds(), 10.0f);
-
+			StartCameraZoom();
 			PlayerOwner->GetCharacterMovement()->MaxWalkSpeed = 250.0f;
 
 			if (CrosshairWidgetClass)
@@ -256,8 +236,7 @@ bool AGun::SetAiming(bool bNewAiming)
 			}
 		} else
 		{
-			GetWorld()->GetTimerManager().SetTimer(ResetCameraTimerHandle, this, &AGun::ResetCamera, 0.02f, true);
-			
+			StopCameraZoom();
 			PlayerOwner->GetCharacterMovement()->MaxWalkSpeed = 500.0f;
 
 			if (CrosshairWidget)
@@ -267,7 +246,6 @@ bool AGun::SetAiming(bool bNewAiming)
 		}
 
 		IPlayerAnimationInterface::Execute_SetAiming(PlayerOwner->GetMesh()->GetAnimInstance(), bNewAiming);
-	}
 
 	return bNewAiming;
 }
@@ -294,6 +272,22 @@ bool AGun::IsFirstBetweenValues(float Value, float Min, float Max)
 
 FHitResult AGun::GetObjectInSight()
 {
+	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
+
+	if (PlayerController && IsAiming())
+	{
+		FVector CameraLocation;
+		FRotator CameraRotation;
+		PlayerController->GetPlayerViewPoint(CameraLocation, CameraRotation);
+
+		FVector TraceStart = CameraLocation;
+		FVector TraceEnd = TraceStart + (CameraRotation.Vector() * 10000.0f);
+		FCollisionQueryParams CollisionParams;
+		CollisionParams.AddIgnoredActor(this);
+
+		GetWorld()->LineTraceSingleByChannel(CrosshairHitResult, TraceStart, TraceEnd, ECollisionChannel::ECC_Pawn, CollisionParams);
+	}
+	
 	return CrosshairHitResult;
 }
 
@@ -301,27 +295,6 @@ void AGun::ResetShooting()
 {
 	bIsShooting = false;
 	GetWorld()->GetTimerManager().ClearTimer(FireRateTimerHandle);
-}
-
-void AGun::ResetCamera()
-{
-	if (!PlayerOwner)
-	{
-		GetWorld()->GetTimerManager().ClearTimer(ResetCameraTimerHandle);
-		return;
-	}
-
-	USpringArmComponent* CameraBoom = PlayerOwner->FindComponentByClass<USpringArmComponent>();
-	constexpr float DefaultBoomArmLength = 500.0f;
-	bool bIsAlreadyDefaultLength = FMath::IsNearlyEqual(CameraBoom->TargetArmLength, DefaultBoomArmLength, 0.1f);
-	
-	if (CameraBoom && !bIsAlreadyDefaultLength)
-	{
-		CameraBoom->TargetArmLength = FMath::FInterpTo(CameraBoom->TargetArmLength, DefaultBoomArmLength, GetWorld()->GetDeltaSeconds(), 10.0f);
-	} else
-	{
-		GetWorld()->GetTimerManager().ClearTimer(ResetCameraTimerHandle);
-	}
 }
 
 void AGun::OnReloadAnimationFinished()
@@ -333,5 +306,42 @@ void AGun::OnReloadAnimationFinished()
 	{
 		AmmoTextBlock->SetText(FText::Format(FText::FromString("{0}/{1}"), CurrentAmmo, MaxAmmo));
 		AmmoTextBlock->SetColorAndOpacity(FLinearColor::White);
+	}
+}
+
+void AGun::CameraZoomUpdate(float Value)
+{
+	UE_LOG(LogTemp, Log, TEXT("Camera zoom update"));
+	if (PlayerOwner)
+	{
+		USpringArmComponent* CameraBoom = PlayerOwner->FindComponentByClass<USpringArmComponent>();
+		if (CameraBoom)
+		{
+			float NewArmLength = FMath::Lerp(500.0f, 300.0f, Value);
+			CameraBoom->TargetArmLength = NewArmLength;
+		}
+	}
+}
+
+void AGun::CameraZoomFinished()
+{
+	// Logic to execute when the zoom animation is finished
+	UE_LOG(LogTemp, Log, TEXT("Camera zoom finished"));
+}
+
+void AGun::StartCameraZoom()
+{
+	if (CameraZoomTimeline)
+	{
+		CameraZoomTimeline->PlayFromStart();
+		UE_LOG(LogTemp, Log, TEXT("Set aim"));
+	}
+}
+
+void AGun::StopCameraZoom()
+{
+	if (CameraZoomTimeline)
+	{
+		CameraZoomTimeline->Reverse();
 	}
 }

@@ -1,5 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
+﻿// EnemySpawn.h
 #pragma once
 
 #include "CoreMinimal.h"
@@ -12,15 +11,15 @@ class ZOMBIESURVIVAL_API AEnemySpawn : public AActor
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this actor's properties
 	AEnemySpawn();
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-UPROPERTY
-	(EditAnywhere, BlueprintReadWrite, Category = "Enemy Spawn Settings")
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Spawn Settings")
 	bool bShouldSpawn = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Spawn Settings")
 	int Wave = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Spawn Settings")
@@ -32,12 +31,8 @@ UPROPERTY
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Spawn Settings")
 	float HealthMultiplier = 1.0f;
 
-	// enemy blueprint to spawn
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Spawn Settings")
 	TSubclassOf<class AEnemy> EnemyBlueprint;
-
-	UFUNCTION(BlueprintCallable)
-	void StartNextWave();
 
 private:
 	void SpawnEnemies();
@@ -45,8 +40,10 @@ private:
 	FTimerHandle MemberTimerHandle;
 
 	int EnemiesSpawned = 0;
-	
+
 public:
-	// Called every frame
-	// virtual void Tick(float DeltaTime) override;
+	virtual void Tick(float DeltaTime) override;
+
+	UFUNCTION(BlueprintCallable)
+	void StartNextWave();
 };
