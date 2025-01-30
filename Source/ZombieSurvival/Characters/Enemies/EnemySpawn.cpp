@@ -11,7 +11,11 @@ AEnemySpawn::AEnemySpawn()
 void AEnemySpawn::BeginPlay()
 {
     Super::BeginPlay();
-    StartNextWave();
+
+    if (bShouldSpawn)
+    {
+        StartNextWave();
+    }
 }
 
 void AEnemySpawn::Tick(float DeltaTime)
@@ -28,7 +32,9 @@ void AEnemySpawn::SpawnEnemies()
 
         FVector SpawnLocation = GetActorLocation();
         FRotator SpawnRotation = GetActorRotation();
-        AEnemy* Enemy = World->SpawnActor<AEnemy>(EnemyBlueprint, SpawnLocation, SpawnRotation);
+        FActorSpawnParameters SpawnParams;
+        SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+        AEnemy* Enemy = World->SpawnActor<AEnemy>(EnemyBlueprint, SpawnLocation, SpawnRotation, SpawnParams);
         UE_LOG(LogTemp, Log, TEXT("Enemy spawned"));
         if (Enemy)
         {
@@ -54,6 +60,11 @@ void AEnemySpawn::SpawnEnemies()
 
 void AEnemySpawn::StartNextWave()
 {
+    if (EnemiesSpawned != 0 && EnemiesSpawned < EnemiesToSpawn)
+    {
+        return;
+    }
+    
     Wave++;
     EnemiesSpawned = 0;
     EnemiesToSpawn = FMath::Max(EnemiesToSpawn + Wave, 0);
