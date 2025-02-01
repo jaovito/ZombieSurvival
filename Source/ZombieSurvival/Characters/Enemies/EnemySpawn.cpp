@@ -1,7 +1,11 @@
 ﻿// EnemySpawn.cpp
 #include "EnemySpawn.h"
+
+#include "AIController.h"
 #include "Enemy.h"
+#include "Kismet/GameplayStatics.h"
 #include "ZombieSurvival/CharacterStatusComponent.h"
+#include "ZombieSurvival/Characters/Player/ShooterCharacter.h"
 
 AEnemySpawn::AEnemySpawn()
 {
@@ -11,6 +15,8 @@ AEnemySpawn::AEnemySpawn()
 void AEnemySpawn::BeginPlay()
 {
     Super::BeginPlay();
+
+    GetWorld()->GetTimerManager().SetTimer(FollowPlayerTimerHandle, this, &AEnemySpawn::MoveEnemiesToPlayer, 1.0f, true, 0.5f);
 
     if (bShouldSpawn)
     {
@@ -70,4 +76,48 @@ void AEnemySpawn::StartNextWave()
     EnemiesToSpawn = FMath::Max(EnemiesToSpawn + Wave, 0);
     bShouldSpawn = true;
     GetWorldTimerManager().SetTimer(MemberTimerHandle, this, &AEnemySpawn::SpawnEnemies, SpawnDelay, true, 0.5f);
+}
+
+FVector AEnemySpawn::GetNearestPlayerLocation()
+{
+    TArray<AActor*> PlayerActors;
+    UGameplayStatics::GetAllActorsOfClass(GetWorld(), AShooterCharacter::StaticClass(), PlayerActors);
+
+    NearestPlayerLocation = FVector::ZeroVector;
+    float MinDistance = TNumericLimits<float>::Max();
+
+    for (AActor* Player : PlayerActors)
+    {
+        float Distance = FVector::DistSquared(GetActorLocation(), Player->GetActorLocation());
+        if (Distance < MinDistance)
+        {
+            MinDistance = Distance;
+            NearestPlayerLocation = Player->GetActorLocation();
+        }
+    }
+
+    return NearestPlayerLocation;
+}
+
+void AEnemySpawn::MoveEnemiesToPlayer()
+{
+    NearestPlayerLocation = GetNearestPlayerLocation();
+    if (NearestPlayerLocation != FVector::ZeroVector)
+    {
+        TArray<AActor*> EnemyActors;
+        UGameplayStatics::GetAllActorsOfClass(GetWorld(), AEnemy::StaticClass(), EnemyActors);
+
+        for (AActor* EnemyActor : EnemyActors)
+        {
+            AEnemy* Enemy = Cast<AEnemy>(EnemyActor);
+            if (Enemy && !Enemy->GetMesh()->IsSimulatingPhysics())
+            {
+                AAIController* AIController = Cast<AAIController>(Enemy->GetController());
+                if (AIController)
+                {
+                    AIController->MoveToLocation(NearestPlayerLocation);
+                }
+            }
+        }
+    }
 }

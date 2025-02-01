@@ -3,6 +3,7 @@
 
 #include "Enemy.h"
 
+#include "AIController.h"
 #include "EnemySpawn.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -15,6 +16,11 @@ AEnemy::AEnemy()
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
+	UCharacterMovementComponent* MoveComp = GetCharacterMovement();
+	MoveComp->GravityScale = 2.0f;
+	MoveComp->SetWalkableFloorAngle(75.0f);
+	MoveComp->MaxStepHeight = 45.0f;
+	MoveComp->bUseFlatBaseForFloorChecks = true;
 	CharacterStatusComponent = CreateDefaultSubobject<UCharacterStatusComponent>(TEXT("CharacterStatusComponent"));
 }
 
@@ -42,23 +48,7 @@ void AEnemy::TakeDamage_Implementation(float HitDamage)
 	float CurrentHealth = CharacterStatusComponent->GetHealth();
 	if (CurrentHealth <= 0)
 	{
-		// enable ragdoll
-		DetachFromControllerPendingDestroy();
-		UCapsuleComponent* CapsuleComp = GetCapsuleComponent();
-		CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		CapsuleComp->SetCollisionResponseToAllChannels(ECR_Ignore);
-		
-		GetMesh()->SetCollisionProfileName(TEXT("Ragdoll"));
-		SetActorEnableCollision(true);
-		
-		GetMesh()->SetAllBodiesSimulatePhysics(true);
-		GetMesh()->SetSimulatePhysics(true);
-		GetMesh()->WakeAllRigidBodies();
-		GetMesh()->bBlendPhysics = true;
-		SetActorTickEnabled(false);
-
-		Destroy();
-
+		Die();
 		if (this->GetCharacterMovement())
 		{
 			this->GetCharacterMovement()->StopMovementImmediately();
@@ -74,7 +64,7 @@ void AEnemy::TakeDamage_Implementation(float HitDamage)
 		for (AActor* Actor : FoundActors)
 		{
 			AEnemy* Enemy = Cast<AEnemy>(Actor);
-			if (Enemy && !Enemy->GetMesh()->IsSimulatingPhysics())
+			if (Enemy && Enemy->CharacterStatusComponent->GetHealth() > 0)
 			{
 				ActiveEnemies++;
 			}
@@ -105,3 +95,56 @@ void AEnemy::TakeDamage_Implementation(float HitDamage)
 		}
 	}
 }
+
+void AEnemy::Die()
+{
+	DetachFromControllerPendingDestroy();
+	EnableRagdoll();
+}
+
+void AEnemy::EnableRagdoll()
+{
+	if (GetMesh())
+	{
+		if (AAIController* AIController = Cast<AAIController>(GetController()))
+		{
+			AIController->StopMovement();
+			AIController->UnPossess();
+		} 
+		
+		GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		GetMesh()->SetAllBodiesSimulatePhysics(true);
+		GetMesh()->SetAllBodiesBelowSimulatePhysics(FName("pelvis"), true, true);
+		GetCharacterMovement()->StopMovementImmediately();
+		GetCharacterMovement()->DisableMovement();
+
+		// get capsule component
+		if (UCapsuleComponent* CharCapsuleComponent = GetCapsuleComponent())
+        {
+            CharCapsuleComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+        }
+
+		
+		GetWorld()->GetTimerManager().SetTimer(
+			RagdollTimerHandle,
+			this,
+			&AEnemy::DisableRagdollPhysics,
+			RagdollDuration,
+			false
+		);
+	}
+}
+
+void AEnemy::DisableRagdollPhysics()
+{
+	if (GetMesh())
+	{
+		GetMesh()->PutAllRigidBodiesToSleep();
+		GetMesh()->SetSimulatePhysics(false);
+		GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		GetMesh()->SetAllBodiesSimulatePhysics(false);
+		GetMesh()->SetPhysicsBlendWeight(PhysicsBlendWeight);
+		GetMesh()->bNoSkeletonUpdate = true;
+	}
+}
+

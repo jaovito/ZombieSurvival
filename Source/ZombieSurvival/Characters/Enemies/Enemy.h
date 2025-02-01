@@ -19,10 +19,18 @@ public:
 
 private:
 	virtual void TakeDamage_Implementation(float HitDamage) override;
-	
+
+	FTimerHandle RagdollTimerHandle;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Ragdoll")
+	float RagdollDuration = 5.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Ragdoll")
+	float PhysicsBlendWeight = 1.0f;
 
 public:
 	// Called every frame
@@ -39,4 +47,13 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Inventory")
 	UCharacterStatusComponent* CharacterStatusComponent;
+
+	UFUNCTION(BlueprintCallable)
+	void Die();
+
+	UFUNCTION(BlueprintCallable)
+	void EnableRagdoll();
+
+	UFUNCTION(BlueprintCallable)
+	void DisableRagdollPhysics();
 };

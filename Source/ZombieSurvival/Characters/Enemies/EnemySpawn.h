@@ -38,8 +38,14 @@ private:
 	void SpawnEnemies();
 
 	FTimerHandle MemberTimerHandle;
+	FTimerHandle FollowPlayerTimerHandle;
 
 	int EnemiesSpawned = 0;
+
+	void MoveEnemiesToPlayer();
+	FVector GetNearestPlayerLocation();
+
+	FVector NearestPlayerLocation;
 
 public:
 	virtual void Tick(float DeltaTime) override;
