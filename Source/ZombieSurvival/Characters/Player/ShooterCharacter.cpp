@@ -4,6 +4,7 @@
 #include "ShooterCharacter.h"
 
 #include "InventoryComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values
@@ -12,6 +13,7 @@ AShooterCharacter::AShooterCharacter()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("InventoryComponent"));
+	CharacterStatusComponent = CreateDefaultSubobject<UCharacterStatusComponent>(TEXT("CharacterStatusComponent"));
 }
 
 // Called when the game starts or when spawned
@@ -22,6 +24,7 @@ void AShooterCharacter::BeginPlay()
 
 	CameraManager->ViewPitchMin = minAimOffset;
 	CameraManager->ViewPitchMax = maxAimOffset;
+	CharacterStatusComponent->Heal(CharacterStatusComponent->MaxHealth);
 }
 
 // Called every frame
@@ -61,4 +64,42 @@ AGun* AShooterCharacter::GetCurrentGun_Implementation()
 	}
 
 	return nullptr;
+}
+
+void AShooterCharacter::TakeDamage_Implementation(float HitDamage)
+{
+	float Health = CharacterStatusComponent->GetHealth();
+	UE_LOG(LogTemp, Log, TEXT("Player was hitted with %f damage"), HitDamage);
+	UE_LOG(LogTemp, Log, TEXT("Player health %f"), Health);
+	if (Health <= 0)
+	{
+		Execute_Die(this);
+	} else
+	{
+		CharacterStatusComponent->TakeDamage(HitDamage);
+	}
+	
+}
+
+void AShooterCharacter::Die_Implementation()
+{
+	UE_LOG(LogTemp, Log, TEXT("Player died"));
+	// enable ragdoll physics
+	GetMesh()->SetSimulatePhysics(true);
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	GetMesh()->SetCollisionProfileName(TEXT("Ragdoll"));
+
+	GetCharacterMovement()->DisableMovement();
+	// disable camera
+	APlayerController* PlayerController = Cast<APlayerController>(GetController());
+	if (PlayerController)
+	{
+		PlayerController->DisableInput(PlayerController);
+		PlayerController->SetIgnoreLookInput(true);
+	}
+
+	if (DieScreenWidget)
+	{
+		DieScreenWidget->AddToViewport();
+	}
 }

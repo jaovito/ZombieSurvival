@@ -26,7 +26,7 @@ public:
 	void JumpTo(FVector Destination);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Enemy Interface")
-	void TakeDamage(float HitDamage);
+	void TakeDamage(float HitDamage, FVector HitLocation, FVector ImpulseDirection);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Enemy Interface")
 	void Attack(AShooterCharacter* Target);

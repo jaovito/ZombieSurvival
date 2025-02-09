@@ -7,6 +7,7 @@
 #include "NiagaraSystem.h"
 #include "Components/SphereComponent.h"
 #include "InputAction.h"
+#include "Projectile.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/TextBlock.h"
 #include "Components/TimelineComponent.h"
@@ -39,7 +40,7 @@ protected:
 	int CurrentAmmo = 30;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shooting Settings")
-	UBlueprint* BPProjectile;
+	TSubclassOf<AProjectile> Projectile;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Shooting Settings")
 	UNiagaraSystem* ShootImpactFX;
@@ -76,6 +77,9 @@ protected:
 	
 	UFUNCTION(BlueprintCallable, Category = "Gun")
 	void Pickup(ACharacter* Player);
+
+	UFUNCTION(BlueprintCallable, Category = "Gun")
+	void Drop();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UTimelineComponent* CameraZoomTimeline;

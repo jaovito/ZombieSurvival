@@ -67,7 +67,7 @@ void AGun::Pickup(ACharacter* Player)
 		if (PlayerMesh)
 		{
 			GunMesh->AttachToComponent(PlayerMesh, FAttachmentTransformRules::SnapToTargetIncludingScale, "Pistol");
-
+			GunMesh->SetSimulatePhysics(false);
 			if (Player->GetClass()->ImplementsInterface(UShooterCharacterInterface::StaticClass()))
 			{
 				IShooterCharacterInterface::Execute_AddItemToInventory(Player, this);
@@ -113,6 +113,17 @@ void AGun::Pickup(ACharacter* Player)
 	}
 }
 
+void AGun::Drop()
+{
+	PlayerOwner = nullptr;
+	if (GunMesh)
+	{
+		GunMesh->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+		GunMesh->SetSimulatePhysics(true);
+	}
+}
+
+
 void AGun::Shoot()
 {
 	if (GetWorld()->GetTimerManager().IsTimerActive(FireRateTimerHandle) || !PlayerOwner)
@@ -137,17 +148,18 @@ void AGun::Shoot()
 		{
 			// UE_LOG(LogTemp, Log, TEXT("Trace hit actor: %s"), *HitResult.GetActor()->GetName());
 			FVector ImpulseDirection = (HitResult.ImpactPoint - GetActorLocation()).GetSafeNormal();
-			ImpulseDirection *= 10000.0f; // Adjust the impulse strength as needed
-					
-			ImpulseDirection.Z += 10.0f;
+
 			bool bIsEnemy = HitResult.GetActor()->GetClass()->ImplementsInterface(UEnemyInterface::StaticClass());
 
 			if (HitResult.GetComponent()->IsSimulatingPhysics())
 			{
+				ImpulseDirection *= 10000.0f; // Adjust the impulse strength as needed
+					
+				ImpulseDirection.Z += 10.0f;
 				HitResult.GetComponent()->AddImpulseAtLocation(ImpulseDirection, HitResult.ImpactPoint);
 			}
 
-			if (ShootImpactFX)
+			if (ShootImpactFX && !Projectile)
 			{
 				UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ShootImpactFX, HitResult.ImpactPoint, FRotator::ZeroRotator, FVector(0.1f));
 			}
@@ -160,9 +172,24 @@ void AGun::Shoot()
 				UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ShootMuzzleFX, MuzzleSocketLocation, MuzzleSocketRotation);
 			}
 
-			if (bIsEnemy)
+			if (GunMesh && Projectile)
 			{
-				IEnemyInterface::Execute_TakeDamage(HitResult.GetActor(), Damage);
+				FVector MuzzleSocketLocation = GunMesh->GetSocketLocation("Muzzle");
+
+				FVector Direction = (HitResult.ImpactPoint - MuzzleSocketLocation).GetSafeNormal();
+				FRotator ProjectileRotation = Direction.Rotation();
+
+				FActorSpawnParameters SpawnParams;
+				SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+				AProjectile* SpawnedProjectile = GetWorld()->SpawnActor<AProjectile>(Projectile, MuzzleSocketLocation, ProjectileRotation, SpawnParams);
+
+				SpawnedProjectile->ProjectileDamage = Damage;
+			}
+			
+
+			if (bIsEnemy && !Projectile)
+			{
+				IEnemyInterface::Execute_TakeDamage(HitResult.GetActor(), Damage, HitResult.ImpactPoint, ImpulseDirection * 10000.0f);
 			}
 		}
 		else {
@@ -187,7 +214,7 @@ void AGun::Shoot()
 
 void AGun::Reload()
 {
-	if (IsReloading() || CurrentAmmo == MaxAmmo)
+	if (IsReloading() || CurrentAmmo == MaxAmmo || IsShooting())
 	{
 		return;
 	}
@@ -284,10 +311,14 @@ FHitResult AGun::GetObjectInSight()
 		FVector TraceEnd = TraceStart + (CameraRotation.Vector() * 10000.0f);
 		FCollisionQueryParams CollisionParams;
 		CollisionParams.AddIgnoredActor(this);
+		if (PlayerOwner)
+		{
+			CollisionParams.AddIgnoredActor(PlayerOwner);
+		}
 
 		GetWorld()->LineTraceSingleByChannel(CrosshairHitResult, TraceStart, TraceEnd, ECollisionChannel::ECC_Pawn, CollisionParams);
 	}
-	
+
 	return CrosshairHitResult;
 }
 

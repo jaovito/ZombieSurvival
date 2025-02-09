@@ -6,6 +6,7 @@
 #include "InventoryComponent.h"
 #include "GameFramework/Character.h"
 #include "Interfaces/ShooterCharacterInterface.h"
+#include "ZombieSurvival/CharacterStatusComponent.h"
 #include "ShooterCharacter.generated.h"
 
 UCLASS()
@@ -32,6 +33,10 @@ public:
 
 	virtual AGun* GetCurrentGun_Implementation() override;
 
+	virtual void Die_Implementation() override;
+
+	virtual void TakeDamage_Implementation(float HitDamage) override;
+
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shooting Settings")
 	float minAimOffset = -55.0f;
@@ -44,4 +49,10 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Inventory")
 	UInventoryComponent* InventoryComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="CharacterStatusComponent")
+	UCharacterStatusComponent* CharacterStatusComponent;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UUserWidget* DieScreenWidget;
 };

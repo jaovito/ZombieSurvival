@@ -22,4 +22,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Shooter Character Interface")
 	void AddItemToInventory(AActor* Item);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Shooter Character Interface")
+	void Die();
 };

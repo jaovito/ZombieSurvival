@@ -18,9 +18,12 @@ public:
 	AEnemy();
 
 private:
-	virtual void TakeDamage_Implementation(float HitDamage) override;
+	virtual void TakeDamage_Implementation(float HitDamage, FVector HitLocation, FVector ImpulseDirection) override;
 
 	FTimerHandle RagdollTimerHandle;
+	FTimerHandle DampingTimerHandle;
+
+	void UpdateDampingAfterRagdoll();
 
 protected:
 	// Called when the game starts or when spawned

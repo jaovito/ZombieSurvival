@@ -42,13 +42,14 @@ void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
-void AEnemy::TakeDamage_Implementation(float HitDamage)
+void AEnemy::TakeDamage_Implementation(float HitDamage, FVector HitLocation, FVector ImpulseDirection)
 {
 	CharacterStatusComponent->TakeDamage(HitDamage);
 	float CurrentHealth = CharacterStatusComponent->GetHealth();
 	if (CurrentHealth <= 0)
 	{
 		Die();
+		GetMesh()->AddImpulseAtLocation(ImpulseDirection * 5.0f, HitLocation);
 		if (this->GetCharacterMovement())
 		{
 			this->GetCharacterMovement()->StopMovementImmediately();
@@ -118,6 +119,13 @@ void AEnemy::EnableRagdoll()
 		GetCharacterMovement()->StopMovementImmediately();
 		GetCharacterMovement()->DisableMovement();
 
+		GetWorld()->GetTimerManager().SetTimer(
+			DampingTimerHandle,
+			this,
+			&AEnemy::UpdateDampingAfterRagdoll,
+			1.0f,
+			false);
+
 		// get capsule component
 		if (UCapsuleComponent* CharCapsuleComponent = GetCapsuleComponent())
         {
@@ -139,12 +147,22 @@ void AEnemy::DisableRagdollPhysics()
 {
 	if (GetMesh())
 	{
+		GetWorld()->GetTimerManager().ClearTimer(RagdollTimerHandle);
 		GetMesh()->PutAllRigidBodiesToSleep();
 		GetMesh()->SetSimulatePhysics(false);
 		GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		GetMesh()->SetAllBodiesSimulatePhysics(false);
 		GetMesh()->SetPhysicsBlendWeight(PhysicsBlendWeight);
 		GetMesh()->bNoSkeletonUpdate = true;
+	}
+}
+
+void AEnemy::UpdateDampingAfterRagdoll()
+{
+	if (GetMesh())
+	{
+		GetMesh()->SetLinearDamping(200.0f);
+		GetMesh()->SetAngularDamping(210.0f);
 	}
 }
 
