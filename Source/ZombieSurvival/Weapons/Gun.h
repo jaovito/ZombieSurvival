@@ -12,10 +12,11 @@
 #include "Components/TextBlock.h"
 #include "Components/TimelineComponent.h"
 #include "GameFramework/Actor.h"
+#include "ZombieSurvival/Characters/Player/Interfaces/InventoryItemInterface.h"
 #include "Gun.generated.h"
 
 UCLASS()
-class ZOMBIESURVIVAL_API AGun : public AActor
+class ZOMBIESURVIVAL_API AGun : public AActor, public IInventoryItemInterface
 {
 	GENERATED_BODY()
 
@@ -63,6 +64,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Shooting Settings")
 	UInputAction* ReloadAction;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Shooting Settings")
+	USoundWave* ShootSound;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 	TSubclassOf<UUserWidget> CrosshairWidgetClass;
 
@@ -74,19 +78,13 @@ protected:
 
 	UPROPERTY()
 	UUserWidget* AmmoWidget;
-	
-	UFUNCTION(BlueprintCallable, Category = "Gun")
-	void Pickup(ACharacter* Player);
-
-	UFUNCTION(BlueprintCallable, Category = "Gun")
-	void Drop();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UTimelineComponent* CameraZoomTimeline;
 	
 	UPROPERTY(EditAnywhere, Category = "Camera")
 	UCurveFloat* ZoomCurve;
-
+	
 	FOnTimelineFloat InterpFunction;
 	FOnTimelineEvent TimelineFinished;
 
@@ -144,6 +142,9 @@ private:
 	ACharacter* PlayerOwner;
 	FHitResult CrosshairHitResult;
 	FHitResult GetObjectInSight();
+
+	virtual void Pickup_Implementation(ACharacter* Player) override;
+	virtual void Drop_Implementation() override;
 
 	void ResetShooting();
 };

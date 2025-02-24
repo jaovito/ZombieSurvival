@@ -57,7 +57,7 @@ void AGun::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void AGun::Pickup(ACharacter* Player)
+void AGun::Pickup_Implementation(ACharacter* Player)
 {
 	// attach the gun to the player skeleton socket
 	if (Player && !PlayerOwner)
@@ -113,7 +113,7 @@ void AGun::Pickup(ACharacter* Player)
 	}
 }
 
-void AGun::Drop()
+void AGun::Drop_Implementation()
 {
 	PlayerOwner = nullptr;
 	if (GunMesh)
@@ -194,9 +194,31 @@ void AGun::Shoot()
 		}
 		else {
 			UE_LOG(LogTemp, Log, TEXT("No Actors were hit"));
+
+			if (GunMesh && Projectile)
+			{
+				FVector MuzzleSocketLocation = GunMesh->GetSocketLocation("Muzzle");
+
+				FVector Direction = GunMesh->GetSocketRotation("Muzzle").Vector();
+				FRotator ProjectileRotation = Direction.Rotation();
+
+				FActorSpawnParameters SpawnParams;
+				SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+				AProjectile* SpawnedProjectile = GetWorld()->SpawnActor<AProjectile>(Projectile, MuzzleSocketLocation, ProjectileRotation, SpawnParams);
+
+				SpawnedProjectile->ProjectileDamage = Damage;
+			}
 		}
 
 		AnimInstance->Montage_Play(ShootMontage);
+		if (ShootSound)
+		{
+			if (ShootSound->IsPlayable() && GunMesh)
+			{
+				FVector MuzzleSocketLocation = GunMesh->GetSocketLocation("Muzzle");
+				UGameplayStatics::PlaySoundAtLocation(GetWorld(), ShootSound, MuzzleSocketLocation);
+			}
+		}
 		CurrentAmmo--;
 		if (AmmoTextBlock)
 		{
