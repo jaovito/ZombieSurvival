@@ -1,11 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "ShooterCharacter.h"
+#include "ZombieSurvival/Public/Characters/Player/ShooterCharacter.h"
 
-#include "InventoryComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "ZombieSurvival/Public/Weapons/Gun.h"
 
 // Sets default values
 AShooterCharacter::AShooterCharacter()

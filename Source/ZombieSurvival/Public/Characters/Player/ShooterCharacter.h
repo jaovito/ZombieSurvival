@@ -4,8 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "InventoryComponent.h"
+#include "ShooterCharacterInterface.h"
 #include "GameFramework/Character.h"
-#include "Interfaces/ShooterCharacterInterface.h"
 #include "ZombieSurvival/CharacterStatusComponent.h"
 #include "ShooterCharacter.generated.h"
 

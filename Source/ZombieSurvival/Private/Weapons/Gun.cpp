@@ -1,10 +1,9 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Gun.h"
+#include "ZombieSurvival/Public/Weapons/Gun.h"
 
 #include "NiagaraFunctionLibrary.h"
-#include "Camera/CameraComponent.h"
 #include "Components/InputComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -12,10 +11,10 @@
 #include "EnhancedInputComponent.h"
 #include "Components/TextBlock.h"
 #include "Components/TimelineComponent.h"
-#include "ZombieSurvival/Characters/Player/Interfaces/PlayerAnimationInterface.h"
+#include "ZombieSurvival/Public/Characters/Player/PlayerAnimationInterface.h"
 #include "Kismet/GameplayStatics.h"
-#include "ZombieSurvival/Characters/Enemies/Interfaces/EnemyInterface.h"
-#include "ZombieSurvival/Characters/Player/Interfaces/ShooterCharacterInterface.h"
+#include "ZombieSurvival/Public/Characters/Enemies/EnemyInterface.h"
+#include "ZombieSurvival/Public/Characters/Player/ShooterCharacterInterface.h"
 
 // Sets default values
 AGun::AGun()

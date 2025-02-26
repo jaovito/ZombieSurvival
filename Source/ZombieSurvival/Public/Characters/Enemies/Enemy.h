@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "Interfaces/EnemyInterface.h"
+#include "EnemyInterface.h"
 #include "ZombieSurvival/CharacterStatusComponent.h"
 #include "Enemy.generated.h"
 

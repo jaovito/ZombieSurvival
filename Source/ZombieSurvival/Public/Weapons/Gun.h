@@ -6,13 +6,12 @@
 #include "InputAction.h"
 #include "NiagaraSystem.h"
 #include "Components/SphereComponent.h"
-#include "InputAction.h"
 #include "Projectile.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/TextBlock.h"
 #include "Components/TimelineComponent.h"
 #include "GameFramework/Actor.h"
-#include "ZombieSurvival/Characters/Player/Interfaces/InventoryItemInterface.h"
+#include "ZombieSurvival/Public/Characters/Player/InventoryItemInterface.h"
 #include "Gun.generated.h"
 
 UCLASS()

@@ -1,10 +1,11 @@
-﻿#include "FollowNearestPlayerTask.h"
+﻿#include "ZombieSurvival/Public/AI/Tasks/FollowNearestPlayerTask.h"
+
 #include "AIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
-#include "ZombieSurvival/Characters/Enemies/Interfaces/EnemyInterface.h"
-#include "ZombieSurvival/Characters/Player/ShooterCharacter.h"
+#include "ZombieSurvival/Public/Characters/Enemies/EnemyInterface.h"
+#include "ZombieSurvival/Public/Characters/Player/ShooterCharacter.h"
 
 UFollowNearestPlayerTask::UFollowNearestPlayerTask()
 {

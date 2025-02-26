@@ -1,10 +1,11 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "FinishReloadAnimNotify.h"
-#include "Gun.h"
+#include "ZombieSurvival/Public/Weapons/FinishReloadAnimNotify.h"
+
+#include "ZombieSurvival/Public/Weapons/Gun.h"
 #include "GameFramework/Actor.h"
-#include "ZombieSurvival/Characters/Player/Interfaces/ShooterCharacterInterface.h"
+#include "ZombieSurvival/Public/Characters/Player/ShooterCharacterInterface.h"
 
 void UFinishReloadAnimNotify::Notify(
 	USkeletalMeshComponent* MeshComp,

@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "ZombieSurvival/Weapons/Gun.h"
+#include "ZombieSurvival/Public/Weapons/Gun.h"
 
 #include "ShooterCharacterInterface.generated.h"
 

@@ -1,10 +1,9 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
+#include "ZombieSurvival/Public/Weapons/Projectile.h"
 
-#include "Projectile.h"
-
-#include "ZombieSurvival/Characters/Enemies/Interfaces/EnemyInterface.h"
-#include "ZombieSurvival/Characters/Player/Interfaces/ShooterCharacterInterface.h"
+#include "ZombieSurvival/Public/Characters/Enemies/EnemyInterface.h"
+#include "ZombieSurvival/Public/Characters/Player/ShooterCharacterInterface.h"
 
 
 // Sets default values

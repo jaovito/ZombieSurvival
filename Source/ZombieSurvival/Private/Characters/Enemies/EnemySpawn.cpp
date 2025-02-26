@@ -1,11 +1,11 @@
 ﻿// EnemySpawn.cpp
-#include "EnemySpawn.h"
+#include "ZombieSurvival/Public/Characters/Enemies/EnemySpawn.h"
 
 #include "AIController.h"
-#include "Enemy.h"
 #include "Kismet/GameplayStatics.h"
 #include "ZombieSurvival/CharacterStatusComponent.h"
-#include "ZombieSurvival/Characters/Player/ShooterCharacter.h"
+#include "ZombieSurvival/Public/Characters/Player/ShooterCharacter.h"
+#include "ZombieSurvival/Public/Characters/Enemies/Enemy.h"
 
 AEnemySpawn::AEnemySpawn()
 {

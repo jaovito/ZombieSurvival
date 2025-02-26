@@ -1,7 +1,7 @@
-﻿#include "InventoryComponent.h"
+﻿#include "ZombieSurvival/Public/Characters/Player/InventoryComponent.h"
 
 #include "GameFramework/Character.h"
-#include "Interfaces/InventoryItemInterface.h"
+#include "ZombieSurvival/Public/Characters/Player/InventoryItemInterface.h"
 
 UInventoryComponent::UInventoryComponent()
 {
