@@ -6,7 +6,7 @@ This project is a study project aimed at creating a survival game where the play
 
 ## Bugs to fix
 - [ ] The enemies stay blocked in the jump points if have more than 1 enemy at same place;
-- [ ] FPS drops when have a lot of enemies on the screen;
+- [x] FPS drops when have a lot of enemies on the screen;
 
 ## Features
 
@@ -15,7 +15,7 @@ This project is a study project aimed at creating a survival game where the play
   - [x] Shoot
   - [x] Ammo
   - [x] Reload
-  - [ ] Health
+  - [x] Health
   - [ ] Score
 - **Zombie Spawning**: Zombies spawn at regular intervals, increasing the challenge as the game progresses.
 - **Visual Effects**: Includes visual effects for shooting impacts and muzzle flashes.
@@ -35,7 +35,7 @@ In this game I'm using **C++ and Blueprints**, combining the power of C++ with t
 
 1. Clone the repository:
    ```sh
-   git clone https://github.com/yourusername/zombie-survival-game.git
+   git clone https://github.com/jaovito/ZombieSurvival.git
    ```
 2. Open the project in Unreal Engine.
 
