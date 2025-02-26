@@ -17,7 +17,10 @@ This project is a study project aimed at creating a survival game where the play
   - [x] Reload
   - [x] Health
   - [ ] Score
-- **Zombie Spawning**: Zombies spawn at regular intervals, increasing the challenge as the game progresses.
+  - [ ] Anim Montage per gun, using different animations for each gun
+  - [ ] Finish inventory component
+  
+
 - **Visual Effects**: Includes visual effects for shooting impacts and muzzle flashes.
   - [x] Muzzle Flash
   - [x] Bullet Impact
