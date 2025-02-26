@@ -2,6 +2,7 @@
 
 #include "ZombieSurvival/Public/Weapons/Projectile.h"
 
+#include "NiagaraFunctionLibrary.h"
 #include "ZombieSurvival/Public/Characters/Enemies/EnemyInterface.h"
 #include "ZombieSurvival/Public/Characters/Player/ShooterCharacterInterface.h"
 
@@ -59,6 +60,11 @@ void AProjectile::OnComponentHit(
 
 	if (!bIsPlayer)
 	{
+		if (ProjectileImpactFX)
+		{
+			UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ProjectileImpactFX, Hit.ImpactPoint, FRotator::ZeroRotator, FVector(0.1f));
+		}
+		
 		Destroy();
 	}
 }

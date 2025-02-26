@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/BoxComponent.h"
+#include "NiagaraSystem.h"
 #include "GameFramework/Actor.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Projectile.generated.h"
@@ -26,6 +27,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	UProjectileMovementComponent* ProjectileMovementComponent;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Projectile Settings")
+	UNiagaraSystem* ProjectileImpactFX;
 
 public:
 	// Called every frame
