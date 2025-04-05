@@ -55,4 +55,7 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UUserWidget* DieScreenWidget;
+
+	UFUNCTION(BlueprintCallable, Category="Inventory")
+	void AddPlayerWidgetToInventory(UUserWidget* Widget);
 };

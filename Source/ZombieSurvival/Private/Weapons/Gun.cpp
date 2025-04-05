@@ -9,6 +9,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "EnhancedInputComponent.h"
+#include "Characters/Player/ShooterCharacter.h"
 #include "Components/TextBlock.h"
 #include "Components/TimelineComponent.h"
 #include "ZombieSurvival/Public/Characters/Player/PlayerAnimationInterface.h"
@@ -75,16 +76,12 @@ void AGun::Pickup_Implementation(ACharacter* Player)
 			// get the player input component
 			if (GetWorld())
 			{
-				UEnhancedInputComponent* PlayerInputComponent = PlayerOwner->FindComponentByClass<UEnhancedInputComponent>();
-
-				if (AmmoWidgetClass)
+				
+				if (const AShooterCharacter* ShooterCharacter = Cast<AShooterCharacter>(PlayerOwner))
 				{
-					AmmoWidget = CreateWidget<UUserWidget>(GetWorld(), AmmoWidgetClass);
-					if (AmmoWidget)
+					if (const UUserWidget* PlayerHUD = ShooterCharacter->InventoryComponent->InventoryWidget)
 					{
-						AmmoWidget->AddToViewport();
-						// change text to display the current ammo
-						AmmoTextBlock = Cast<UTextBlock>(AmmoWidget->GetWidgetFromName("Ammo"));
+						AmmoTextBlock = Cast<UTextBlock>(PlayerHUD->GetWidgetFromName("Ammo"));
 						if (AmmoTextBlock)
 						{
 							AmmoTextBlock->SetText(FText::Format(FText::FromString("{0}/{1}"), CurrentAmmo, MaxAmmo));
@@ -92,7 +89,7 @@ void AGun::Pickup_Implementation(ACharacter* Player)
 					}
 				}
 
-				if (PlayerInputComponent)
+				if (UEnhancedInputComponent* PlayerInputComponent = PlayerOwner->FindComponentByClass<UEnhancedInputComponent>())
 				{
 					if (ShootAction)
 					{

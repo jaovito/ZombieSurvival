@@ -28,6 +28,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category="Inventory")
 	TMap<FName, AActor*> GetItems() const;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory")
+	UUserWidget* InventoryWidget;
+
 private:
 	UPROPERTY()
 	TMap<FName, AActor*> Items;

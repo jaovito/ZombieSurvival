@@ -3,6 +3,7 @@
 
 #include "ZombieSurvival/Public/Characters/Player/ShooterCharacter.h"
 
+#include "Components/ProgressBar.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "ZombieSurvival/Public/Weapons/Gun.h"
@@ -44,6 +45,14 @@ bool AShooterCharacter::IsFirstBetweenValues(float Value, float Min, float Max)
 	return Value >= Min && Value <= Max;
 }
 
+void AShooterCharacter::AddPlayerWidgetToInventory(UUserWidget* Widget)
+{
+	if (InventoryComponent)
+    {
+        InventoryComponent->InventoryWidget = Widget;
+    }
+}
+
 void AShooterCharacter::AddItemToInventory_Implementation(AActor* Item)
 {
 	if (InventoryComponent)
@@ -71,11 +80,23 @@ void AShooterCharacter::TakeDamage_Implementation(float HitDamage)
 	float Health = CharacterStatusComponent->GetHealth();
 	UE_LOG(LogTemp, Log, TEXT("Player was hitted with %f damage"), HitDamage);
 	UE_LOG(LogTemp, Log, TEXT("Player health %f"), Health);
-	if (Health <= 0)
+	UProgressBar* HealthBar = Cast<UProgressBar>(InventoryComponent->InventoryWidget->GetWidgetFromName("HealthBar"));
+	float CurrentHealth = Health - HitDamage;
+
+	
+	if (CurrentHealth <= 0)
 	{
+		HealthBar->SetPercent(0.0f);
 		Execute_Die(this);
 	} else
 	{
+		// set bar health from widget to 0
+		if (HealthBar)
+		{
+			float MaxPlayerHealth = CharacterStatusComponent->MaxHealth;
+			HealthBar->SetPercent(CurrentHealth / MaxPlayerHealth);
+		}
+		
 		CharacterStatusComponent->TakeDamage(HitDamage);
 	}
 	
